@@ -4,6 +4,7 @@ import { getSession } from "@/lib/dal";
 
 export type ProjectSummary = {
   id: string;
+  organization_id: string;
   name: string;
   description: string | null;
   deadline_at: string | null;
@@ -17,7 +18,7 @@ export async function listAccessibleProjects(): Promise<ProjectSummary[]> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("projects")
-    .select("id, name, description, deadline_at")
+    .select("id, organization_id, name, description, deadline_at")
     .order("created_at", { ascending: true });
 
   if (error) throw error;
@@ -29,7 +30,7 @@ export async function getProject(projectId: string): Promise<ProjectSummary | nu
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("projects")
-    .select("id, name, description, deadline_at")
+    .select("id, organization_id, name, description, deadline_at")
     .eq("id", projectId)
     .maybeSingle();
 
