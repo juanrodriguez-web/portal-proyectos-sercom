@@ -1,0 +1,730 @@
+<title>Control Tower Blueprint</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  :root{
+    --paper:#F3F5F4; --surface:#FFFFFF; --surface-2:#EAEEED; --surface-3:#E1E7E6;
+    --ink:#10151B; --ink-soft:#3C4750; --steel:#5B6873; --border:#D8DEDC;
+    --accent:#0E7C86; --accent-ink:#06474D; --accent-soft:#E1F0F0;
+    --amber:#9C6110; --amber-soft:#F7ECD9;
+    --red:#B23A22; --red-soft:#F7E4DE;
+    --green:#1E7A4C; --green-soft:#E1F1E7;
+    --blue:#215E96; --blue-soft:#E2ECF5;
+    --shadow: 0 1px 2px rgba(16,21,27,.06), 0 8px 24px -12px rgba(16,21,27,.18);
+    --radius: 3px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --paper:#0A0F13; --surface:#121820; --surface-2:#1A222A; --surface-3:#212B34;
+      --ink:#EAF0F1; --ink-soft:#B9C4C9; --steel:#8B99A2; --border:#293440;
+      --accent:#54D8DA; --accent-ink:#B9F1F1; --accent-soft:#123336;
+      --amber:#E3A63D; --amber-soft:#2E260F;
+      --red:#F1725A; --red-soft:#341C16;
+      --green:#57CB8F; --green-soft:#12291C;
+      --blue:#7FB0E6; --blue-soft:#152435;
+      --shadow: 0 1px 2px rgba(0,0,0,.4), 0 12px 28px -14px rgba(0,0,0,.7);
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#0A0F13; --surface:#121820; --surface-2:#1A222A; --surface-3:#212B34;
+    --ink:#EAF0F1; --ink-soft:#B9C4C9; --steel:#8B99A2; --border:#293440;
+    --accent:#54D8DA; --accent-ink:#B9F1F1; --accent-soft:#123336;
+    --amber:#E3A63D; --amber-soft:#2E260F;
+    --red:#F1725A; --red-soft:#341C16;
+    --green:#57CB8F; --green-soft:#12291C;
+    --blue:#7FB0E6; --blue-soft:#152435;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 12px 28px -14px rgba(0,0,0,.7);
+  }
+
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--paper); color:var(--ink);
+    font-family:"IBM Plex Sans",system-ui,sans-serif;
+    font-size:15.5px; line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,h4{
+    font-family:"IBM Plex Sans Condensed",system-ui,sans-serif;
+    font-weight:600; text-wrap:balance; color:var(--ink); margin:0;
+  }
+  a{color:var(--accent-ink);}
+  code, .mono{font-family:"IBM Plex Mono",ui-monospace,monospace;}
+  .tabular{font-variant-numeric:tabular-nums;}
+
+  .shell{display:grid; grid-template-columns:264px minmax(0,1fr); min-height:100vh;}
+  @media (max-width:900px){ .shell{grid-template-columns:1fr;} .toc{display:none;} }
+
+  /* ---- TOC rail: reads as the product's own left nav, deliberately ---- */
+  .toc{
+    position:sticky; top:0; height:100vh; overflow-y:auto;
+    background:var(--surface); border-right:1px solid var(--border);
+    padding:28px 18px 40px;
+  }
+  .toc-brand{
+    font-family:"IBM Plex Sans Condensed"; font-weight:700; font-size:13px;
+    letter-spacing:.09em; text-transform:uppercase; color:var(--steel);
+    margin-bottom:2px;
+  }
+  .toc-title{font-size:19px; font-weight:600; margin-bottom:22px; line-height:1.25;}
+  .toc nav{display:flex; flex-direction:column; gap:1px;}
+  .toc a{
+    display:block; text-decoration:none; color:var(--ink-soft);
+    font-size:13.5px; padding:6px 10px; border-radius:var(--radius);
+    border-left:2px solid transparent;
+  }
+  .toc a:hover{background:var(--surface-2); color:var(--ink);}
+  .toc .grp{
+    margin-top:18px; font-size:10.5px; font-weight:600; letter-spacing:.08em;
+    text-transform:uppercase; color:var(--steel); padding:0 10px 6px;
+  }
+  .toc .grp:first-child{margin-top:0;}
+
+  main{padding:0; min-width:0;}
+  .hero{
+    padding:56px 48px 40px; border-bottom:1px solid var(--border);
+    background:linear-gradient(180deg,var(--surface),var(--paper));
+  }
+  @media (max-width:640px){ .hero{padding:36px 20px 28px;} }
+  .kicker{
+    font-family:"IBM Plex Mono"; font-size:12px; color:var(--accent-ink);
+    text-transform:uppercase; letter-spacing:.1em; margin-bottom:14px;
+    display:flex; gap:10px; align-items:center;
+  }
+  .kicker::before{content:"●"; color:var(--accent); font-size:9px;}
+  .hero h1{font-size:clamp(28px,4vw,40px); max-width:16ch; margin-bottom:14px;}
+  .hero p.lede{max-width:62ch; color:var(--ink-soft); font-size:16.5px; margin-bottom:22px;}
+  .hero-meta{display:flex; flex-wrap:wrap; gap:22px; font-size:13px; color:var(--steel);}
+  .hero-meta b{color:var(--ink-soft); font-weight:600;}
+
+  section{padding:44px 48px; border-bottom:1px solid var(--border); scroll-margin-top:16px;}
+  @media (max-width:640px){ section{padding:32px 20px;} }
+  section.tight{padding-top:28px;}
+  .section-head{display:flex; align-items:baseline; gap:12px; margin-bottom:8px;}
+  .section-num{font-family:"IBM Plex Mono"; color:var(--accent-ink); font-size:14px;}
+  section h2{font-size:24px;}
+  .section-intro{max-width:70ch; color:var(--ink-soft); margin:10px 0 26px; font-size:15px;}
+  section h3{font-size:16.5px; margin:30px 0 12px;}
+  section h3:first-of-type{margin-top:0;}
+  p{max-width:70ch; margin:0 0 12px;}
+  ul,ol{max-width:70ch; padding-left:22px; margin:0 0 14px;}
+  li{margin-bottom:6px;}
+  .wide{max-width:none;}
+
+  /* ---- badges: status vs risk, always shown as two independent chips ---- */
+  .chip{
+    display:inline-flex; align-items:center; gap:6px; padding:2px 9px 3px;
+    border-radius:100px; font-size:12px; font-weight:600; white-space:nowrap;
+    border:1px solid transparent; line-height:1.5;
+  }
+  .chip::before{content:""; width:6px; height:6px; border-radius:50%; background:currentColor; flex:none;}
+  .chip-status{background:var(--blue-soft); color:var(--blue); border-color:color-mix(in srgb, var(--blue) 30%, transparent);}
+  .chip-status.op{background:var(--green-soft); color:var(--green);}
+  .chip-status.notready{background:var(--surface-3); color:var(--ink-soft);}
+  .chip-risk{background:var(--surface-2); color:var(--steel); border-color:var(--border); font-weight:600;}
+  .chip-risk.low{color:var(--green);}
+  .chip-risk.medium{color:var(--amber);}
+  .chip-risk.high{color:var(--red);}
+  .chip-risk.critical{background:var(--red-soft); color:var(--red);}
+
+  /* ---- audit findings ---- */
+  .finding{
+    display:grid; grid-template-columns:84px 1fr; gap:0 20px;
+    padding:18px 0; border-top:1px solid var(--border);
+  }
+  .finding:first-of-type{border-top:none;}
+  .sev{
+    align-self:start; font-family:"IBM Plex Mono"; font-size:11px; font-weight:600;
+    text-transform:uppercase; letter-spacing:.04em; padding:3px 7px; border-radius:2px;
+    text-align:center; white-space:nowrap;
+  }
+  .sev.critico{background:var(--red-soft); color:var(--red);}
+  .sev.alto{background:var(--amber-soft); color:var(--amber);}
+  .sev.medio{background:var(--surface-3); color:var(--ink-soft);}
+  .sev.bajo{background:var(--surface-2); color:var(--steel);}
+  .finding h4{font-size:15px; margin-bottom:6px; max-width:68ch;}
+  .finding .id{font-family:"IBM Plex Mono"; font-size:11px; color:var(--steel); margin-right:8px;}
+  .finding .rec{
+    margin-top:10px; padding:10px 12px; background:var(--surface); border:1px solid var(--border);
+    border-left:2px solid var(--accent); border-radius:0 var(--radius) var(--radius) 0; font-size:13.7px;
+    max-width:68ch;
+  }
+  .finding .rec b{color:var(--accent-ink); font-family:"IBM Plex Mono"; font-size:11px; text-transform:uppercase; letter-spacing:.05em; display:block; margin-bottom:4px;}
+
+  /* ---- callouts ---- */
+  .callout{
+    background:var(--accent-soft); border:1px solid color-mix(in srgb, var(--accent) 35%, transparent);
+    border-radius:var(--radius); padding:16px 18px; margin:18px 0; max-width:70ch; font-size:14px;
+  }
+  .callout.decide{background:var(--amber-soft); border-color:color-mix(in srgb, var(--amber) 40%, transparent);}
+  .callout p:last-child{margin-bottom:0;}
+  .callout b{display:block; font-family:"IBM Plex Mono"; font-size:11px; text-transform:uppercase; letter-spacing:.05em; margin-bottom:6px; color:var(--ink-soft);}
+
+  /* ---- generic table ---- */
+  .tbl-wrap{overflow-x:auto; margin:10px 0 22px; border:1px solid var(--border); border-radius:var(--radius);}
+  table{width:100%; border-collapse:collapse; font-size:13.5px; background:var(--surface);}
+  th,td{text-align:left; padding:9px 12px; border-bottom:1px solid var(--border); vertical-align:top;}
+  thead th{
+    background:var(--surface-2); font-family:"IBM Plex Mono"; font-weight:600; font-size:11px;
+    text-transform:uppercase; letter-spacing:.04em; color:var(--steel); white-space:nowrap;
+  }
+  tbody tr:last-child td{border-bottom:none;}
+  tbody tr:hover{background:var(--surface-2);}
+  td.dim{color:var(--steel);}
+  td center-dot{}
+  .yes{color:var(--green); font-weight:700;}
+  .no{color:var(--steel);}
+
+  /* ---- role cards ---- */
+  .roles{display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:14px; margin:8px 0 22px;}
+  .role-card{background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px;}
+  .role-card h4{font-size:14px; margin-bottom:2px; font-family:"IBM Plex Mono"; letter-spacing:.02em;}
+  .role-card .scope{font-size:12px; color:var(--steel); margin-bottom:10px;}
+  .role-card ul{padding-left:16px; font-size:13px; margin:0;}
+  .role-card li{margin-bottom:4px;}
+  .role-card .land{
+    margin-top:10px; padding-top:10px; border-top:1px dashed var(--border);
+    font-size:12px; color:var(--ink-soft);
+  }
+
+  /* ---- flow blocks ---- */
+  .flow{background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:20px 22px; margin:16px 0 26px;}
+  .flow-head{display:flex; justify-content:space-between; align-items:baseline; gap:16px; flex-wrap:wrap; margin-bottom:14px;}
+  .flow-head h4{font-size:16px;}
+  .flow-actor{font-family:"IBM Plex Mono"; font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:var(--accent-ink); background:var(--accent-soft); padding:3px 9px; border-radius:100px;}
+  .steps{list-style:none; padding:0; margin:0; max-width:none; counter-reset:step;}
+  .steps li{
+    counter-increment:step; position:relative; padding:0 0 14px 30px; margin:0;
+    border-left:1px solid var(--border); margin-left:9px;
+  }
+  .steps li:last-child{border-left:1px solid transparent; padding-bottom:0;}
+  .steps li::before{
+    content:counter(step); position:absolute; left:-9px; top:0;
+    width:18px; height:18px; border-radius:50%; background:var(--surface-2); border:1px solid var(--border);
+    font-family:"IBM Plex Mono"; font-size:10px; display:flex; align-items:center; justify-content:center;
+    color:var(--ink-soft); font-weight:600;
+  }
+  .steps b{font-weight:600;}
+  .steps .note{display:block; font-size:12.5px; color:var(--steel); margin-top:2px;}
+  .gate-box{
+    margin-top:14px; padding:10px 12px; background:var(--amber-soft); border-radius:var(--radius);
+    font-size:13px; border-left:2px solid var(--amber);
+  }
+  .gate-box b{font-family:"IBM Plex Mono"; font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--amber); display:block; margin-bottom:4px;}
+
+  .diagram{background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:18px; margin:14px 0 24px; overflow-x:auto;}
+
+  .swatch-row{display:flex; flex-wrap:wrap; gap:10px; margin:14px 0 22px;}
+  .swatch{
+    display:flex; flex-direction:column; gap:8px; padding:12px 14px; background:var(--surface);
+    border:1px solid var(--border); border-radius:var(--radius); min-width:150px;
+  }
+  .swatch .lbl{font-size:12px; color:var(--steel);}
+
+  footer{padding:40px 48px 70px; color:var(--steel); font-size:13px;}
+  @media (max-width:640px){ footer{padding:30px 20px 50px;} }
+  .end-cta{
+    max-width:70ch; background:var(--surface); border:1px solid var(--border);
+    border-radius:var(--radius); padding:20px 22px; margin-top:6px;
+  }
+  .end-cta h4{font-size:15px; margin-bottom:8px; color:var(--ink);}
+
+  ::selection{background:var(--accent-soft); color:var(--accent-ink);}
+  :focus-visible{outline:2px solid var(--accent); outline-offset:2px;}
+</style>
+
+<div class="shell">
+  <aside class="toc">
+    <div class="toc-brand">SERCOM · Vodafone</div>
+    <div class="toc-title">Control Tower<br>Blueprint</div>
+    <nav>
+      <a href="#intro">Alcance de esta fase</a>
+      <div class="grp">01 · Auditoría</div>
+      <a href="#audit">UX Audit</a>
+      <a href="#decisions">Decisiones pendientes</a>
+      <div class="grp">02 · Arquitectura</div>
+      <a href="#ia">Arquitectura de información</a>
+      <a href="#sitemap">Sitemap</a>
+      <div class="grp">03 · Navegación</div>
+      <a href="#roles">Navegación por rol</a>
+      <div class="grp">04 · Flujos</div>
+      <a href="#flow-setup">Alta de proyecto</a>
+      <a href="#flow-field">Ejecución en campo</a>
+      <a href="#flow-validate">Validación y cierre</a>
+      <a href="#flow-template">Gobierno de plantillas</a>
+      <a href="#flow-risk">Riesgo y evidencia</a>
+      <a href="#flow-access">Acceso de proveedores</a>
+      <div class="grp">Cierre</div>
+      <a href="#next">Próxima fase</a>
+    </nav>
+  </aside>
+
+  <main>
+    <div class="hero" id="intro">
+      <div class="kicker">Fase 1 de 5 · Product Design</div>
+      <h1>UX Audit, arquitectura de información y flujos</h1>
+      <p class="lede">Antes de dibujar una sola pantalla en alta fidelidad, esto fija el terreno: qué falla en los mockups de referencia frente al spec funcional, cómo se organiza el sistema por debajo de los 40 kioscos, quién ve qué, y cómo se mueve el trabajo entre los seis flujos que definen si el rollout llega a 40/40.</p>
+      <div class="hero-meta">
+        <span><b>Fuente de verdad</b> SPECS_GESTOR_PROYECTOS_SERCOM_VODAFONE.md v1.2</span>
+        <span><b>Referencia visual</b> 5 mockups conceptuales (dashboard, listado, gantt, mapa, detalle)</span>
+        <span><b>Siguiente fase</b> Wireframes → Hi-Fi → Design System → Handoff</span>
+      </div>
+    </div>
+
+    <!-- ============ AUDIT ============ -->
+    <section id="audit">
+      <div class="section-head"><span class="section-num">01</span><h2>UX Audit</h2></div>
+      <p class="section-intro">Los mockups son referencia conceptual, no la fuente de verdad — así lo pide el propio encargo. Catorce hallazgos, ordenados por severidad, comparando lo que muestran los cinco PNG contra lo que exige el MD. Cada uno lleva su recomendación de diseño para que no se reinterprete en fases posteriores.</p>
+
+      <div class="finding">
+        <span class="sev critico">Crítico</span>
+        <div>
+          <h4><span class="id">F1</span>El mapa mezcla Estado y Riesgo en una sola leyenda de color</h4>
+          <p>La leyenda del mapa lista <span class="mono">Operativo · Ready · Not Ready · At Risk</span> como si fueran cuatro valores del mismo campo. "At Risk" no es un estado operativo — es una lectura de riesgo aplicada sobre cualquier estado. Esto contradice directamente el principio 2.4 del spec: un PDV puede ser <em>Not Ready + riesgo bajo</em> (faltan 30 días) o <em>Not Ready + riesgo crítico</em> (instala mañana), y el mapa actual no puede representar esa diferencia.</p>
+          <div class="rec"><b>Recomendación</b>El marcador codifica <em>solo</em> estado operativo (forma + color, 6 valores). El riesgo se representa como un anillo o badge secundario independiente, con sus 4 niveles propios. Nunca se combinan en una sola leyenda.</div>
+        </div>
+      </div>
+
+      <div class="finding">
+        <span class="sev critico">Crítico</span>
+        <div>
+          <h4><span class="id">F2</span>El Gantt alterna entre mostrar estado o riesgo bajo cada fila, nunca los dos</h4>
+          <p>Bajo "Madrid · Sol" aparece <span class="mono">Operativo</span>; bajo "Málaga Centro" aparece <span class="mono">Riesgo crítico</span>. Es el mismo campo de subtítulo usado para dos conceptos distintos según cuál "parezca más urgente" — exactamente el patrón que el spec pide evitar.</p>
+          <div class="rec"><b>Recomendación</b>Cada fila del Gantt lleva dos chips fijos y siempre visibles: estado operativo y riesgo. Ver los tokens en <a href="#ia">§ Arquitectura</a>.</div>
+        </div>
+      </div>
+
+      <div class="finding">
+        <span class="sev critico">Crítico</span>
+        <div>
+          <h4><span class="id">F3</span>No existe ninguna referencia visual para Drive, evidencias, plantillas, permisos o auditoría</h4>
+          <p>El propio encargo llama "requisito crítico" a la integración con Google Drive, y el spec le dedica una sección completa (§18) más media docena de pantallas del MVP (§25). Ninguno de los cinco mockups toca Project Settings/Drive, subida de evidencias, galería documental, editor de plantillas, matriz de permisos o auditoría. Son las piezas que sostienen "cero acceso por defecto" y "Drive como repositorio oficial" — el corazón del sistema — y hoy no tienen ni un boceto.</p>
+          <div class="rec"><b>Recomendación</b>Estas pantallas se diseñan desde cero en wireframes/hi-fi, sin ancla visual previa que "copiar". Se tratan con el mismo nivel de detalle que el dashboard, no como anexos.</div>
+        </div>
+      </div>
+
+      <div class="finding">
+        <span class="sev alto">Alto</span>
+        <div>
+          <h4><span class="id">F4</span>Los mockups son desktop puro; no hay ninguna pista de cómo se comporta esto en móvil</h4>
+          <p>Sidebar fija de 232px, tablas de ancho fijo, ningún breakpoint sugerido. El spec es explícito: "mobile first para ejecución" (2.5) y el instalador trabaja "sin depender de un ordenador". La experiencia que más volumen de uso diario va a tener —el instalador subiendo evidencias desde la calle— no tiene ninguna referencia.</p>
+          <div class="rec"><b>Recomendación</b>El Mobile Installer Experience (~390px) se diseña como flujo propio de principio a fin, no como un recorte del desktop. Ver <a href="#flow-field">Ejecución en campo</a>.</div>
+        </div>
+      </div>
+
+      <div class="finding">
+        <span class="sev alto">Alto</span>
+        <div>
+          <h4><span class="id">F5</span>No hay conmutador de proyecto ni breadcrumb Organización → Proyecto</h4>
+          <p>La sidebar mezcla ítems de nivel organización (Usuarios, Configuración) con ítems de nivel proyecto (Unidades, Gantt, Mapa) en una sola lista plana, sin jerarquía visual ni forma de moverse a un segundo proyecto. El spec pide "arquitectura multi-proyecto desde v1" (§24) — con un solo proyecto activo esto no se nota, pero no escala al segundo rollout.</p>
+          <div class="rec"><b>Recomendación</b>Navegación de tres niveles: Portfolio (todos los proyectos accesibles) → Project shell con conmutador persistente en la topbar → Work Unit. Detalle en <a href="#ia">§ Arquitectura de información</a>.</div>
+        </div>
+      </div>
+
+      <div class="finding">
+        <span class="sev alto">Alto</span>
+        <div>
+          <h4><span class="id">F6</span>El riesgo se representa solo con un punto de color, sin etiqueta</h4>
+          <p>En el listado de Unidades de trabajo, la columna Riesgo es un único dot verde/naranja/rojo sin texto. El propio spec exige explícitamente no depender solo del color en el mapa (§13) — el mismo criterio aplica a cualquier tabla, y hoy el listado no lo cumple.</p>
+          <div class="rec"><b>Recomendación</b>Riesgo siempre como chip texto + color (<span class="chip chip-risk low">Bajo</span> <span class="chip chip-risk medium">Medio</span> <span class="chip chip-risk high">Alto</span> <span class="chip chip-risk critical">Crítico</span>), igual que el estado operativo. Un dot aislado no vuelve a aparecer como portador único de significado.</div>
+        </div>
+      </div>
+
+      <div class="finding">
+        <span class="sev medio">Medio</span>
+        <div>
+          <h4><span class="id">F7</span>El rojo de marca y el rojo de alerta compiten por el mismo significado</h4>
+          <p>El rojo Vodafone se usa para el ítem activo de la sidebar, el CTA primario ("+ Nueva unidad") y las barras de forecast — y es el mismo tono que "Not Ready" y "Riesgo crítico". El encargo pide explícitamente evitar "exceso de rojo"; tal como está, un usuario no puede saber de un vistazo si el rojo que ve es "esto es una acción" o "esto está en problemas".</p>
+          <div class="rec"><b>Recomendación</b>Un único rojo se reserva para Crítico/Not Ready/error. La marca se expresa en el logotipo y acentos puntuales de la topbar; los CTA primarios usan tinta oscura neutra o el acento de producto, nunca el rojo semántico.</div>
+        </div>
+      </div>
+
+      <div class="finding">
+        <span class="sev medio">Medio</span>
+        <div>
+          <h4><span class="id">F8</span>Ningún mockup muestra cómo se ve "cero acceso por defecto" para Installer o Viewer</h4>
+          <p>Los cinco mockups exponen Usuarios y Configuración en la sidebar — vista de ADMIN. No hay evidencia de la restricción de navegación para un instalador externo con acceso a 2 de 40 PDV, que es el ejemplo literal que da el propio encargo.</p>
+          <div class="rec"><b>Recomendación</b>Cada rol se especifica de forma explícita, con su propia landing y su propia lista de ítems ausentes. Ver <a href="#roles">§ Navegación por rol</a>.</div>
+        </div>
+      </div>
+
+      <div class="finding">
+        <span class="sev medio">Medio</span>
+        <div>
+          <h4><span class="id">F9</span>El listado de Unidades no muestra tareas vencidas ni bloqueo principal</h4>
+          <p>El spec pide explícitamente estas columnas para el listado ("tareas vencidas", "bloqueo principal") como parte de entender una instalación "de un vistazo". El mockup se queda en estado, riesgo, progreso y responsable.</p>
+          <div class="rec"><b>Recomendación</b>Añadir columna "Bloqueo principal" (texto corto, ej. "Recepción kiosco · vencida 2d") y contador de vencidas junto al progreso.</div>
+        </div>
+      </div>
+
+      <div class="finding">
+        <span class="sev medio">Medio</span>
+        <div>
+          <h4><span class="id">F10</span>"Calendar" no está en las Pantallas MVP del spec pero sí en el encargo de entrega</h4>
+          <p>El listado de entregables del brief pide una vista de Calendario; la sección 25 del spec ("Pantallas MVP") no la incluye. Puede ser una vista redundante con el Gantt o una necesidad real de planificación semanal por responsable.</p>
+          <div class="rec"><b>Recomendación</b>Se diseña como vista ligera derivada de <em>Mis tareas</em> + fechas T± en formato calendario mensual/semanal — no un Gantt alternativo. Queda marcada como <a href="#decisions">decisión a validar</a>.</div>
+        </div>
+      </div>
+
+      <div class="finding">
+        <span class="sev medio">Medio</span>
+        <div>
+          <h4><span class="id">F11</span>La fila de tarea en el checklist no expone evidencias, dependencias ni gates</h4>
+          <p>El mockup de detalle muestra owner, fecha y estado por tarea. El modelo funcional completo (§7, §18.6, §28) construye el sistema entero sobre evidencia requerida, dependencias entre tareas y gates automáticos — información que hoy es invisible en la fila.</p>
+          <div class="rec"><b>Recomendación</b>Fila de tarea extendida: icono de gate si bloquea un estado, contador de evidencia (x/n) si aplica, indicador de dependencia bloqueante. Detalle en wireframes de Checklist.</div>
+        </div>
+      </div>
+
+      <div class="finding">
+        <span class="sev bajo">Bajo</span>
+        <div>
+          <h4><span class="id">F12</span>No hay búsqueda global ni centro de notificaciones</h4>
+          <p>Las diez preguntas de éxito del proyecto (§33) exigen respuestas rápidas que hoy obligan a navegar por menús. Sin búsqueda global ni inbox de notificaciones, "¿qué cambió?" solo se responde entrando unidad por unidad.</p>
+          <div class="rec"><b>Recomendación</b>Topbar con búsqueda global (PDV, tarea, incidencia) y centro de notificaciones, priorizado para wireframes de topbar/shell.</div>
+        </div>
+      </div>
+
+      <div class="finding">
+        <span class="sev bajo">Bajo</span>
+        <div>
+          <h4><span class="id">F13</span>El dashboard no prioriza visualmente la pregunta que debe responder en 10 segundos</h4>
+          <p>Forecast y Gap —la respuesta directa a "¿vamos a llegar a 40/40?"— viven en una card secundaria de igual peso que "Riesgos prioritarios". El KPI que de verdad importa compite visualmente con conteos absolutos.</p>
+          <div class="rec"><b>Recomendación</b>Forecast + Gap se convierten en el bloque hero del Control Tower, con el resto de KPIs como contexto de apoyo. Ver dirección en próxima fase de wireframes.</div>
+        </div>
+      </div>
+
+      <div class="finding">
+        <span class="sev bajo">Bajo</span>
+        <div>
+          <h4><span class="id">F14</span>"Actualizar baseline" es una acción irreversible sin fricción</h4>
+          <p>Reescribir el plan base del Gantt destruye la comparación histórica plan-vs-real de todo el proyecto, y hoy es un botón primario de un solo clic, sin confirmación.</p>
+          <div class="rec"><b>Recomendación</b>Modal de confirmación con resumen de qué PDV se ven afectados + registro obligatorio en auditoría (§20 del spec).</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="decisions" class="tight">
+      <div class="section-head"><span class="section-num">—</span><h2>Decisiones que necesitan validación con el cliente</h2></div>
+      <div class="callout decide">
+        <b>Antes de wireframes</b>
+        <p><b>Calendar</b> — ¿vista propia o modo de Mis tareas? Se avanza con la hipótesis de "vista propia ligera" (F10) salvo indicación contraria.</p>
+        <p><b>Dashboard, ¿por proyecto o por organización?</b> — el spec describe el Control Tower para un único rollout de 40 kioscos. En cuanto exista un segundo proyecto, ADMIN necesita una vista Portfolio antes de entrar a un Control Tower específico. Se añade como pantalla nueva no listada explícitamente en el MVP (ver <a href="#ia">§ Arquitectura</a>).</p>
+        <p><b>Offline real vs. degradado</b> — el spec pide resiliencia ante "conectividad degradada" (§18.8) pero no offline-first completo. Se diseña para conexión intermitente (reintento, cola visible), no para trabajo sin conexión prolongado.</p>
+        <p><b>Viewer, ¿dashboard propio o el mismo con CTAs ocultos?</b> — se avanza con el mismo layout que Coordinator en modo solo-lectura, para no duplicar mantenimiento de dos dashboards.</p>
+      </div>
+    </section>
+
+    <!-- ============ IA ============ -->
+    <section id="ia">
+      <div class="section-head"><span class="section-num">02</span><h2>Arquitectura de información</h2></div>
+      <p class="section-intro">El motor es genérico — Organization → Project → Work Unit → Phase → Task — y los kioscos son la primera plantilla que lo ejercita. Todo lo demás (Milestones, Incidents, Comments, Attachments, Audit) cuelga de la Work Unit.</p>
+
+      <div class="diagram">
+        <pre class="mermaid">
+flowchart TB
+  ORG["Organization<br/><span style='font-size:11px'>SERCOM</span>"] --> PRJ["Project<br/><span style='font-size:11px'>Kioscos España · Rollout 2026</span>"]
+  PRJ --> WU["Work Unit<br/><span style='font-size:11px'>PDV Málaga Centro</span>"]
+  WU --> PH["Phase<br/><span style='font-size:11px'>Pre-instalación / Instalación / Post</span>"]
+  PH --> TK["Task<br/><span style='font-size:11px'>Confirmar electricidad</span>"]
+  WU --> MS["Milestones"]
+  WU --> IN["Incidents"]
+  WU --> CM["Comments"]
+  WU --> AT["Attachments<br/><span style='font-size:11px'>metadata → Drive file</span>"]
+  WU --> AU["Audit Events"]
+  TK --> EV["Evidence Requirements"]
+        </pre>
+      </div>
+
+      <h3>Estado operativo vs. Riesgo — tokens independientes</h3>
+      <p>El hallazgo F1/F2/F6 se resuelve a nivel de sistema de diseño, no pantalla a pantalla: dos escalas de tokens que nunca se fusionan en un solo campo visual.</p>
+      <div class="swatch-row">
+        <div class="swatch"><span class="chip chip-status">Planned</span><span class="lbl">Estado 1/6</span></div>
+        <div class="swatch"><span class="chip chip-status">En preparación</span><span class="lbl">Estado 2/6</span></div>
+        <div class="swatch"><span class="chip chip-status">Ready for Install</span><span class="lbl">Estado 3/6</span></div>
+        <div class="swatch"><span class="chip chip-status">Installing</span><span class="lbl">Estado 4/6</span></div>
+        <div class="swatch"><span class="chip chip-status">Pending Validation</span><span class="lbl">Estado 5/6</span></div>
+        <div class="swatch"><span class="chip chip-status op">Operative</span><span class="lbl">Estado 6/6</span></div>
+      </div>
+      <div class="swatch-row">
+        <div class="swatch"><span class="chip chip-risk low">Low</span><span class="lbl">Riesgo</span></div>
+        <div class="swatch"><span class="chip chip-risk medium">Medium</span><span class="lbl">Riesgo</span></div>
+        <div class="swatch"><span class="chip chip-risk high">High</span><span class="lbl">Riesgo</span></div>
+        <div class="swatch"><span class="chip chip-risk critical">Critical</span><span class="lbl">Riesgo</span></div>
+      </div>
+      <p style="font-size:13.5px; color:var(--steel); max-width:70ch;">Cualquier fila, marcador o card que represente una Work Unit muestra siempre <em>ambos</em> chips, incluso cuando el riesgo es "Low" — omitirlo cuando es bajo reintroduciría la ambigüedad que esto corrige.</p>
+
+      <h3>Inventario de pantallas por nivel</h3>
+      <div class="tbl-wrap">
+        <table class="wide">
+          <thead><tr><th>Nivel</th><th>Pantalla</th><th>Roles principales</th><th>Origen</th></tr></thead>
+          <tbody>
+            <tr><td rowspan="4" class="dim">Organización</td><td>Portfolio (todos los proyectos)</td><td>ADMIN, Coordinator</td><td class="dim">Nueva — F5</td></tr>
+            <tr><td>Usuarios · Equipos · Permisos</td><td>ADMIN</td><td class="dim">MVP §25</td></tr>
+            <tr><td>Matriz de permisos / asignaciones</td><td>ADMIN</td><td class="dim">MVP §25</td></tr>
+            <tr><td>Auditoría (org-wide)</td><td>ADMIN</td><td class="dim">MVP §25</td></tr>
+            <tr><td rowspan="10" class="dim">Proyecto</td><td>Control Tower / Dashboard</td><td>ADMIN, Coordinator, Operations, Viewer</td><td class="dim">Mockup — rediseñar (F13)</td></tr>
+            <tr><td>Unidades de trabajo (listado)</td><td>ADMIN, Coordinator, Operations, Viewer</td><td class="dim">Mockup — extender (F6, F9)</td></tr>
+            <tr><td>Gantt</td><td>ADMIN, Coordinator, Operations</td><td class="dim">Mockup — corregir (F2)</td></tr>
+            <tr><td>Calendario</td><td>ADMIN, Coordinator, Operations</td><td class="dim">Nueva — F10</td></tr>
+            <tr><td>Mapa de España</td><td>ADMIN, Coordinator, Operations</td><td class="dim">Mockup — corregir (F1)</td></tr>
+            <tr><td>Incidencias (listado de proyecto)</td><td>ADMIN, Coordinator, Operations</td><td class="dim">MVP §25 — sin mockup</td></tr>
+            <tr><td>Plantillas / Template Editor</td><td>ADMIN</td><td class="dim">MVP §25 — sin mockup (F3)</td></tr>
+            <tr><td>Evidence Requirement Editor</td><td>ADMIN</td><td class="dim">Spec §18.6 — sin mockup (F3)</td></tr>
+            <tr><td>Project Settings / Google Drive</td><td>ADMIN</td><td class="dim">Spec §18 — sin mockup (F3)</td></tr>
+            <tr><td>Importación CSV/XLSX de PDV</td><td>ADMIN, Coordinator</td><td class="dim">Spec §21 — sin mockup</td></tr>
+            <tr><td rowspan="7" class="dim">Work Unit</td><td>Resumen</td><td>Todos los roles con acceso a la unidad</td><td class="dim">Mockup — base sólida</td></tr>
+            <tr><td>Checklist</td><td>Todos (edición según rol)</td><td class="dim">Mockup — extender (F11)</td></tr>
+            <tr><td>Timeline</td><td>Todos</td><td class="dim">MVP §25 — sin mockup</td></tr>
+            <tr><td>Evidencias / Galería documental</td><td>Todos (subida según rol)</td><td class="dim">Spec §18 — sin mockup (F3)</td></tr>
+            <tr><td>Incidencias de la unidad</td><td>Todos</td><td class="dim">MVP §25 — sin mockup</td></tr>
+            <tr><td>Comentarios</td><td>Todos (visibilidad por nivel)</td><td class="dim">Spec §4.6 — sin mockup</td></tr>
+            <tr><td>Auditoría de la unidad</td><td>ADMIN, Coordinator, Operations</td><td class="dim">MVP §25 — sin mockup</td></tr>
+            <tr><td rowspan="3" class="dim">Personal</td><td>Mis tareas</td><td>Todos</td><td class="dim">MVP §25 — sin mockup</td></tr>
+            <tr><td>Mis instalaciones (móvil)</td><td>Installer</td><td class="dim">Brief — sin mockup (F4)</td></tr>
+            <tr><td>Instalación de hoy → Finalizar (móvil)</td><td>Installer</td><td class="dim">Brief — sin mockup (F4)</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============ SITEMAP ============ -->
+    <section id="sitemap">
+      <div class="section-head"><span class="section-num">03</span><h2>Sitemap</h2></div>
+      <p class="section-intro">Tres capas de navegación anidadas. El shell de Proyecto lleva un conmutador persistente en la topbar (corrige F5); nada en la capa de Work Unit es alcanzable sin pasar por una asignación explícita, incluso conociendo la URL.</p>
+      <div class="diagram">
+        <pre class="mermaid">
+flowchart LR
+  L["Login"] --> P["Portfolio<br/>(Proyectos accesibles)"]
+  P --> D["Control Tower<br/>(Dashboard)"]
+  subgraph PROJECT["Shell de Proyecto · conmutador persistente"]
+    D --> WU["Unidades de trabajo"]
+    D --> G["Gantt"]
+    D --> C["Calendario"]
+    D --> M["Mapa"]
+    D --> I["Incidencias"]
+    D --> T["Plantillas"]
+    D --> S["Settings · Drive"]
+  end
+  WU --> WD["Detalle de unidad"]
+  subgraph UNIT["Work Unit"]
+    WD --> WDT["Checklist · Timeline · Evidencias<br/>Incidencias · Comentarios · Auditoría"]
+  end
+  P --> U["Usuarios · Equipos · Permisos"]
+  P --> AU["Auditoría org-wide"]
+  L --> MT["Mis tareas"]
+  L --> MI["Mis instalaciones (móvil)"]
+  MI --> HOY["Instalación de hoy"]
+  HOY --> WDT
+        </pre>
+      </div>
+    </section>
+
+    <!-- ============ ROLES ============ -->
+    <section id="roles">
+      <div class="section-head"><span class="section-num">04</span><h2>Navegación por rol</h2></div>
+      <p class="section-intro">Ocultar un ítem de menú no es una medida de seguridad (§4.1 del spec) — pero la navegación visible sí debe reflejar honestamente lo que el backend permite, para que un rol nunca "descubra" por la UI algo a lo que no tiene acceso.</p>
+
+      <div class="roles">
+        <div class="role-card">
+          <h4>ADMIN</h4>
+          <div class="scope">Toda la organización</div>
+          <ul>
+            <li>Portfolio, todos los proyectos</li>
+            <li>Usuarios, equipos, permisos</li>
+            <li>Plantillas y su versionado</li>
+            <li>Settings · Drive por proyecto</li>
+            <li>Auditoría completa (org + proyecto + unidad)</li>
+            <li>Todo lo de Coordinator, sin restricción de proyecto</li>
+          </ul>
+          <div class="land">Landing: Portfolio</div>
+        </div>
+        <div class="role-card">
+          <h4>COORDINATOR</h4>
+          <div class="scope">Proyectos asignados</div>
+          <ul>
+            <li>Control Tower del proyecto</li>
+            <li>Unidades, Gantt, Calendario, Mapa</li>
+            <li>Crea/edita unidades, asigna responsables</li>
+            <li>Incidencias, comentarios, evidencias</li>
+            <li>Plantillas: solo lectura</li>
+          </ul>
+          <div class="land">Landing: Control Tower del proyecto</div>
+        </div>
+        <div class="role-card">
+          <h4>OPERATIONS</h4>
+          <div class="scope">Proyectos / unidades asignados</div>
+          <ul>
+            <li>Unidades en Pending Validation primero</li>
+            <li>Revisa evidencias, aprueba/rechaza</li>
+            <li>Marca Operative cuando se cumplen gates</li>
+            <li>Incidencias, Gantt y Mapa en lectura</li>
+            <li>Sin acceso a Plantillas ni Usuarios</li>
+          </ul>
+          <div class="land">Landing: Cola de validación</div>
+        </div>
+        <div class="role-card">
+          <h4>INSTALLER</h4>
+          <div class="scope">Solo unidades asignadas · móvil primero</div>
+          <ul>
+            <li>Mis instalaciones (solo las suyas)</li>
+            <li>Checklist, evidencias, incidencias propias</li>
+            <li>Sin Dashboard, Gantt, Mapa ni Usuarios</li>
+            <li>No puede marcar Operative ni editar planificación</li>
+          </ul>
+          <div class="land">Landing: Instalación de hoy</div>
+        </div>
+        <div class="role-card">
+          <h4>VIEWER</h4>
+          <div class="scope">Solo recursos autorizados explícitamente</div>
+          <ul>
+            <li>Dashboard y unidades autorizadas, solo lectura</li>
+            <li>Sin ningún CTA de edición/asignación/subida</li>
+            <li>No obtiene acceso por el mero hecho de existir</li>
+          </ul>
+          <div class="land">Landing: Control Tower (modo lectura)</div>
+        </div>
+      </div>
+
+      <div class="tbl-wrap">
+        <table class="wide">
+          <thead><tr><th>Ítem de navegación</th><th>Admin</th><th>Coordinator</th><th>Operations</th><th>Installer</th><th>Viewer</th></tr></thead>
+          <tbody>
+            <tr><td>Portfolio (multi-proyecto)</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="no">—</td><td class="yes">✓</td></tr>
+            <tr><td>Control Tower</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="no">—</td><td class="yes">✓ lectura</td></tr>
+            <tr><td>Unidades de trabajo</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="no">—</td><td class="yes">✓ lectura</td></tr>
+            <tr><td>Gantt / Calendario / Mapa</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓ lectura</td><td class="no">—</td><td class="yes">✓ lectura</td></tr>
+            <tr><td>Incidencias</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓ propias</td><td class="yes">✓ lectura</td></tr>
+            <tr><td>Plantillas / Editor</td><td class="yes">✓</td><td class="yes">✓ lectura</td><td class="no">—</td><td class="no">—</td><td class="no">—</td></tr>
+            <tr><td>Settings · Drive</td><td class="yes">✓</td><td class="no">—</td><td class="no">—</td><td class="no">—</td><td class="no">—</td></tr>
+            <tr><td>Usuarios · Equipos · Permisos</td><td class="yes">✓</td><td class="no">—</td><td class="no">—</td><td class="no">—</td><td class="no">—</td></tr>
+            <tr><td>Auditoría</td><td class="yes">✓ global</td><td class="yes">✓ proyecto</td><td class="yes">✓ proyecto</td><td class="no">—</td><td class="no">—</td></tr>
+            <tr><td>Mis tareas</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="no">—</td></tr>
+            <tr><td>Mis instalaciones (móvil)</td><td class="no">—</td><td class="no">—</td><td class="no">—</td><td class="yes">✓</td><td class="no">—</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============ FLOWS ============ -->
+    <section id="flow-setup">
+      <div class="section-head"><span class="section-num">05</span><h2>User flows</h2></div>
+      <p class="section-intro">Seis recorridos que cubren los quince mínimos pedidos, agrupados por continuidad real de la tarea: quien importa los 40 PDV es quien acaba de crear el proyecto, y la subida de evidencias no se entiende sin su camino de reintento al lado.</p>
+
+      <h3>A · Alta de proyecto y estructura documental</h3>
+      <div class="flow">
+        <div class="flow-head"><h4>PM crea el rollout, importa los 40 PDV y deja Drive listo</h4><span class="flow-actor">PM / Admin</span></div>
+        <ol class="steps">
+          <li><b>Crear proyecto</b> "Kioscos España · Rollout 2026", define objetivo (40), deadline y organización propietaria.<span class="note">Corresponde a flujo 1 del brief.</span></li>
+          <li><b>Importar 40 PDV</b> vía CSV/XLSX con los campos del §21 (código, dirección, CP, ciudad, provincia, contacto, fecha prevista, instalador...).<span class="note">Flujo 2. Validación de fila antes de confirmar import masivo.</span></li>
+          <li><b>Aplicar plantilla</b> "Instalación Kiosco v2.1" a las 40 unidades importadas → genera fases, tareas y fechas relativas (T-20…T+2) automáticamente.<span class="note">Flujo 3.</span></li>
+          <li><b>Asignar responsables</b> por defecto (Coordinación, Tienda, Logística, Instalador) a nivel de unidad, con posibilidad de override individual.<span class="note">Flujo 4.</span></li>
+          <li><b>ADMIN configura Drive</b> en Project Settings: Shared Drive corporativo, carpeta raíz <span class="mono">/PROJECTS/Kioscos España 2026</span>, confirma estructura de carpetas del template.<span class="note">Flujo 5.</span></li>
+          <li><b>El sistema crea la estructura documental</b> automáticamente: una carpeta por unidad (<span class="mono">001 - Madrid Sol</span>…) con subcarpetas 01_PRE / 02_INSTALACION / 03_POST / 04_INCIDENCIAS.<span class="note">Flujo 6 — proceso de servidor, sin intervención manual.</span></li>
+        </ol>
+        <div class="gate-box"><b>Regla</b>El proyecto no queda "activo" para instaladores hasta que Drive confirma la carpeta raíz — evita evidencias huérfanas sin destino.</div>
+      </div>
+    </section>
+
+    <section id="flow-field" class="tight">
+      <h3>B · Ejecución en campo y evidencias</h3>
+      <div class="flow">
+        <div class="flow-head"><h4>El instalador ejecuta, sube evidencia, falla una subida y reintenta</h4><span class="flow-actor">Installer · móvil</span></div>
+        <ol class="steps">
+          <li><b>Abre "Instalación de hoy"</b> desde Mis instalaciones — solo ve las unidades que tiene asignadas.<span class="note">Flujo 7.</span></li>
+          <li><b>Registra llegada</b>, avanza el checklist tarea por tarea (Pre-instalación ya cerrada por Coordinación).</li>
+          <li><b>Sube evidencia</b> de una tarea que la requiere: cámara → captura → preview → confirmar.<span class="note">Flujo 8. El portal resuelve carpeta/nombre; el instalador nunca toca Drive.</span></li>
+          <li><b>Se corta la cobertura a mitad de subida</b> → estado <span class="mono">error</span>, la app conserva el archivo capturado localmente.<span class="note">Flujo 9.</span></li>
+          <li><b>Reintenta con un toque</b> sin volver a fotografiar — sube el mismo archivo en cuanto hay señal.</li>
+          <li><b>Encuentra un problema real</b> (cableado dañado) → crea incidencia con foto adjunta sin salir del checklist.<span class="note">Flujo 10.</span></li>
+          <li>Completa evidencias restantes hasta <span class="mono">4/4</span> y cierra la fase de Instalación → unidad pasa a <span class="chip chip-status">Pending Validation</span>.</li>
+        </ol>
+        <div class="diagram" style="margin-top:16px;">
+          <pre class="mermaid">
+stateDiagram-v2
+  [*] --> Capturando
+  Capturando --> Subiendo: confirmar
+  Subiendo --> Subida: Drive OK + Supabase OK
+  Subiendo --> Error: red interrumpida
+  Error --> Subiendo: reintentar (mismo archivo)
+  Subida --> [*]
+  note right of Subida
+    No se marca "subida"
+    hasta confirmar AMBOS:
+    archivo en Drive + metadatos en Supabase
+  end note
+          </pre>
+        </div>
+        <div class="gate-box"><b>Regla</b>Ninguna tarea con evidencia obligatoria se completa hasta que backend confirma archivo en Drive <em>y</em> registro en Supabase — nunca solo uno de los dos (§18.8).</div>
+      </div>
+    </section>
+
+    <section id="flow-validate" class="tight">
+      <h3>C · Validación y cierre operativo</h3>
+      <div class="flow">
+        <div class="flow-head"><h4>Operations valida y la unidad pasa a Operativo</h4><span class="flow-actor">Operations</span></div>
+        <ol class="steps">
+          <li><b>Cola de validación</b>: Operations abre la unidad en Pending Validation, revisa checklist e incidencias abiertas.<span class="note">Flujo 11.</span></li>
+          <li>Revisa las evidencias de la galería documental (foto frontal, cableado, pantalla encendida, PDV general).</li>
+          <li>Si algo falla → <b>rechaza</b> con motivo, la unidad vuelve a Installing con la tarea reabierta.</li>
+          <li>Si todo cumple → <b>aprueba</b>: gate Operative comprueba tareas obligatorias completas + cero incidencias críticas abiertas.</li>
+          <li>La unidad pasa a <span class="chip chip-status op">Operative</span>, evento registrado en auditoría.<span class="note">Flujo 12.</span></li>
+        </ol>
+        <div class="gate-box"><b>Regla</b>El instalador nunca puede marcar Operative directamente (§ Mobile Installer Experience) — solo Operations, y solo si el gate se cumple.</div>
+      </div>
+    </section>
+
+    <section id="flow-template" class="tight">
+      <h3>D · Gobierno de plantillas</h3>
+      <div class="flow">
+        <div class="flow-head"><h4>ADMIN añade una tarea nueva a mitad de rollout</h4><span class="flow-actor">Admin</span></div>
+        <ol class="steps">
+          <li>Detecta una necesidad nueva (ej. normativa eléctrica) y edita la plantilla "Instalación Kiosco" → crea versión v2.2.<span class="note">Flujo 13.</span></li>
+          <li>Define la tarea nueva: fase, responsable por defecto, obligatoriedad, gate afectado, evidencia requerida, fecha relativa.</li>
+          <li>Al publicar, el sistema pregunta el alcance: <b>solo futuras unidades</b> / <b>unidades abiertas</b> / <b>unidades seleccionadas</b> / <b>todas, incluidas cerradas (acción extraordinaria)</b>.</li>
+          <li>Por defecto no se tocan instalaciones ya cerradas — cada unidad conserva la referencia a la versión de plantilla con la que se ejecutó.</li>
+        </ol>
+        <div class="gate-box"><b>Regla</b>La opción "todas, incluidas cerradas" requiere confirmación reforzada — reescribe histórico de unidades ya operativas.</div>
+      </div>
+    </section>
+
+    <section id="flow-risk" class="tight">
+      <h3>E · Detección de riesgo y verificación</h3>
+      <div class="flow">
+        <div class="flow-head"><h4>El PM detecta un riesgo creciente y verifica en Drive</h4><span class="flow-actor">PM / Coordinator</span></div>
+        <ol class="steps">
+          <li>Desde el Control Tower, ve que "Málaga Centro" subió de riesgo Alto a Crítico en la tabla de riesgos prioritarios.<span class="note">Flujo 14.</span></li>
+          <li>Entra al detalle: dos bloqueos vencidos (recepción de kiosco, confirmación de acceso) explican el salto de riesgo.</li>
+          <li>Revisa la pestaña Evidencias para confirmar si hay foto del incidente de recepción ya documentado.</li>
+          <li>Con permiso de acceso directo, pulsa <b>Abrir carpeta en Google Drive ↗</b> para revisar el documento de albarán completo.<span class="note">Flujo 15 — CTA permission-aware, ausente para Installer/proveedores externos.</span></li>
+          <li>Reasigna el bloqueo o escala la incidencia con nueva fecha objetivo.</li>
+        </ol>
+      </div>
+    </section>
+
+    <section id="flow-access" class="tight">
+      <h3>F · Gestión de acceso de proveedores</h3>
+      <div class="flow">
+        <div class="flow-head"><h4>ADMIN da de alta un instalador externo con acceso mínimo</h4><span class="flow-actor">Admin</span></div>
+        <ol class="steps">
+          <li>Crea el usuario <span class="mono">horacio@proveedor.com</span> → cero acceso por defecto al guardar.<span class="note">Flujo 16.</span></li>
+          <li>Lo añade al equipo "Proveedor Instalación A" con rol INSTALLER.</li>
+          <li>Asigna el equipo (o al usuario individualmente) solo a <b>Madrid Sol</b> y <b>Conde de Peñalver</b> vía Work Unit Assignment.</li>
+          <li>Verifica en User Access Detail que no aparece ningún otro PDV, proyecto ni carpeta de Drive en su alcance.</li>
+          <li>El proveedor no puede ver, buscar ni acceder por URL directa a ninguna otra unidad del proyecto.</li>
+        </ol>
+        <div class="gate-box"><b>Regla</b>Este flujo es también el caso de prueba de aislamiento: si Horacio puede inferir la existencia de "Barcelona · Glòries" por cualquier vía, el modelo de permisos está roto.</div>
+      </div>
+    </section>
+
+    <section id="next" class="tight">
+      <div class="section-head"><span class="section-num">→</span><h2>Próxima fase</h2></div>
+      <div class="end-cta">
+        <h4>Wireframes de baja fidelidad</h4>
+        <p style="margin-bottom:10px;">Esto cierra los pasos 1–7 del proceso pedido: auditoría, inconsistencias, recomendaciones, arquitectura de información, sitemap, navegación por rol y user flows. El siguiente paso son wireframes de las ~30 pantallas del inventario — empezando por las que hoy no tienen ninguna referencia visual (Project Settings/Drive, Evidencias, Plantillas, Permisos) antes que las que ya tienen un punto de partida en los mockups.</p>
+        <p style="margin-bottom:0; color:var(--steel); font-size:13.5px;">Antes de dibujar: ¿confirmamos las cuatro decisiones pendientes de §<a href="#decisions">Decisiones</a>, o seguimos con las hipótesis marcadas y las revisamos en la revisión de wireframes?</p>
+      </div>
+    </section>
+
+    <footer>
+      Gestor de Proyectos SERCOM · Vodafone — Fase 1: UX Audit, IA y Flujos · Fuente funcional: SPECS_GESTOR_PROYECTOS_SERCOM_VODAFONE.md v1.2
+    </footer>
+  </main>
+</div>

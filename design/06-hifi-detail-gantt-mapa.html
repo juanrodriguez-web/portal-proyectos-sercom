@@ -1,0 +1,525 @@
+<title>Control Tower Detail Views</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  :root{
+    --paper:#F3F5F4; --surface:#FFFFFF; --surface-2:#EAEEED; --surface-3:#DEE4E3;
+    --border:#D3DAD9; --ink:#10151B; --ink-soft:#3C4750; --ink-faint:#6C7780;
+    --accent:#0E7C86; --accent-strong:#0A5E66; --accent-soft:#DFF0F0; --accent-ink:#0A5E66;
+    --st-planned-i:#56636E; --st-planned-b:#E7E9EA;
+    --st-prep-i:#3E6E93; --st-prep-b:#E1EAF1;
+    --st-ready-i:#21578E; --st-ready-b:#D9E6F4;
+    --st-install-i:#0E7C86; --st-install-b:#DCEEEE;
+    --st-pending-i:#916012; --st-pending-b:#F3E7CE;
+    --st-op-i:#1E7A4C; --st-op-b:#DCEFE1;
+    --rk-low-i:#746D5C; --rk-low-b:#ECE8DE;
+    --rk-med-i:#916012; --rk-med-b:#F3E7CE;
+    --rk-high-i:#A6501F; --rk-high-b:#F5DDCB;
+    --rk-crit-i:#B23A22; --rk-crit-b:#F6DED8;
+    --shadow-1:0 1px 2px rgba(16,21,27,.05), 0 2px 6px -2px rgba(16,21,27,.08);
+    --shadow-2:0 2px 4px rgba(16,21,27,.06), 0 10px 24px -10px rgba(16,21,27,.18);
+    --shadow-3:0 4px 10px rgba(16,21,27,.10), 0 24px 48px -18px rgba(16,21,27,.30);
+    --r-xs:2px; --r-sm:4px; --r-md:8px; --r-pill:100px;
+    --rail-bg:#0D1218; --rail-ink:#C7D0D6; --rail-ink-strong:#F2F5F6; --rail-line:#1E2731;
+    --rail-accent-bg:#123336; --rail-accent-ink:#4FD6D9; --brand:#E60000;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --paper:#0B1014; --surface:#121820; --surface-2:#1A222B; --surface-3:#212B34;
+      --border:#2B3640; --ink:#EDF1F2; --ink-soft:#C3CCD1; --ink-faint:#8A97A1;
+      --accent:#4FD6D9; --accent-strong:#7FE6E8; --accent-soft:#123336; --accent-ink:#7FE6E8;
+      --st-planned-i:#9DAAB2; --st-planned-b:#232D35; --st-prep-i:#86B4DA; --st-prep-b:#16283A;
+      --st-ready-i:#7FB0E6; --st-ready-b:#122B47; --st-install-i:#4FD6D9; --st-install-b:#123336;
+      --st-pending-i:#E3B563; --st-pending-b:#2E260F; --st-op-i:#57CB8F; --st-op-b:#12291C;
+      --rk-low-i:#B7AF9C; --rk-low-b:#26241C; --rk-med-i:#E3B563; --rk-med-b:#2E260F;
+      --rk-high-i:#F0975E; --rk-high-b:#34220F; --rk-crit-i:#F1725A; --rk-crit-b:#341C16;
+      --shadow-1:0 1px 2px rgba(0,0,0,.4), 0 2px 8px -2px rgba(0,0,0,.5);
+      --shadow-2:0 2px 6px rgba(0,0,0,.4), 0 12px 26px -10px rgba(0,0,0,.6);
+      --shadow-3:0 4px 12px rgba(0,0,0,.5), 0 26px 52px -18px rgba(0,0,0,.75);
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#0B1014; --surface:#121820; --surface-2:#1A222B; --surface-3:#212B34;
+    --border:#2B3640; --ink:#EDF1F2; --ink-soft:#C3CCD1; --ink-faint:#8A97A1;
+    --accent:#4FD6D9; --accent-strong:#7FE6E8; --accent-soft:#123336; --accent-ink:#7FE6E8;
+    --st-planned-i:#9DAAB2; --st-planned-b:#232D35; --st-prep-i:#86B4DA; --st-prep-b:#16283A;
+    --st-ready-i:#7FB0E6; --st-ready-b:#122B47; --st-install-i:#4FD6D9; --st-install-b:#123336;
+    --st-pending-i:#E3B563; --st-pending-b:#2E260F; --st-op-i:#57CB8F; --st-op-b:#12291C;
+    --rk-low-i:#B7AF9C; --rk-low-b:#26241C; --rk-med-i:#E3B563; --rk-med-b:#2E260F;
+    --rk-high-i:#F0975E; --rk-high-b:#34220F; --rk-crit-i:#F1725A; --rk-crit-b:#341C16;
+    --shadow-1:0 1px 2px rgba(0,0,0,.4), 0 2px 8px -2px rgba(0,0,0,.5);
+    --shadow-2:0 2px 6px rgba(0,0,0,.4), 0 12px 26px -10px rgba(0,0,0,.6);
+    --shadow-3:0 4px 12px rgba(0,0,0,.5), 0 26px 52px -18px rgba(0,0,0,.75);
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--paper); color:var(--ink); font-family:"IBM Plex Sans",system-ui,sans-serif; font-size:14.5px; line-height:1.5; -webkit-font-smoothing:antialiased;}
+  h1,h2,h3,h4{font-family:"IBM Plex Sans Condensed",system-ui,sans-serif; font-weight:600; margin:0; color:var(--ink);}
+  .mono{font-family:"IBM Plex Mono",ui-monospace,monospace;}
+  .tabular{font-variant-numeric:tabular-nums;}
+
+  .docbar{display:flex; align-items:center; justify-content:space-between; padding:12px 20px; background:var(--surface); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:20; flex-wrap:wrap; gap:10px;}
+  .docbar .links{display:flex; gap:14px; flex-wrap:wrap;}
+  .docbar a{color:var(--accent-ink); text-decoration:none; font-size:12.5px;}
+  .docbar .tt{font-size:11px; color:var(--ink-faint);}
+  .theme-toggle{display:flex; gap:2px; background:var(--surface-2); border:1px solid var(--border); border-radius:var(--r-sm); padding:2px;}
+  .theme-toggle button{font-family:"IBM Plex Mono"; font-size:10px; text-transform:uppercase; padding:5px 8px; border:none; background:transparent; color:var(--ink-faint); border-radius:2px; cursor:pointer;}
+  .theme-toggle button.on{background:var(--surface); color:var(--ink); box-shadow:var(--shadow-1);}
+  .doc-intro{max-width:900px; margin:0 auto; padding:34px 24px 10px;}
+  .doc-intro .kicker{font-family:"IBM Plex Mono"; font-size:11.5px; color:var(--accent-ink); text-transform:uppercase; letter-spacing:.1em; margin-bottom:10px;}
+  .doc-intro h1{font-size:28px; margin-bottom:8px; max-width:26ch;}
+  .doc-intro p{max-width:68ch; color:var(--ink-soft); font-size:15px;}
+  .screen-label{max-width:1360px; margin:38px auto 0; padding:0 24px; display:flex; align-items:baseline; gap:10px;}
+  .screen-label h2{font-size:18px;}
+  .screen-label span{font-family:"IBM Plex Mono"; font-size:11px; color:var(--ink-faint);}
+
+  .appwrap{max-width:1360px; margin:16px auto 60px; padding:0 24px;}
+  .app{display:grid; grid-template-columns:220px 1fr; border:1px solid var(--border); border-radius:var(--r-md); overflow:hidden; box-shadow:var(--shadow-2); min-height:760px;}
+  @media (max-width:900px){ .app{grid-template-columns:1fr;} .rail{display:none;} }
+
+  .rail{background:var(--rail-bg); color:var(--rail-ink); padding:16px 12px; display:flex; flex-direction:column; gap:2px;}
+  .rail-brand{display:flex; align-items:center; gap:8px; padding:6px 8px 16px;}
+  .rail-brand .mark{width:8px; height:20px; background:var(--brand); border-radius:1px;}
+  .rail-brand b{color:var(--rail-ink-strong); font-family:"IBM Plex Sans Condensed"; font-size:14px; font-weight:600;}
+  .rail-brand span{color:var(--rail-ink); font-size:11px; opacity:.7;}
+  .rail-switch{display:flex; align-items:center; justify-content:space-between; background:#161D25; border:1px solid var(--rail-line); border-radius:var(--r-sm); padding:8px 10px; margin-bottom:16px; font-size:12px;}
+  .rail-switch b{display:block; font-size:12px; color:var(--rail-ink-strong); font-weight:600;}
+  .rail-switch span{font-size:10.5px; color:var(--rail-ink); opacity:.65;}
+  .rail-grp{font-size:9.5px; text-transform:uppercase; letter-spacing:.07em; color:var(--rail-ink); opacity:.5; padding:12px 10px 4px;}
+  .rail-grp:first-of-type{padding-top:0;}
+  .rail-it{display:flex; align-items:center; gap:9px; padding:7px 10px; border-radius:var(--r-sm); font-size:13px; color:var(--rail-ink); text-decoration:none;}
+  .rail-it svg{width:16px; height:16px; stroke:currentColor; fill:none; stroke-width:1.75;}
+  .rail-it.on{background:var(--rail-accent-bg); color:var(--rail-accent-ink); font-weight:600;}
+  .rail-foot{margin-top:auto; padding:10px; font-size:10.5px; color:var(--rail-ink); opacity:.45;}
+
+  .content{background:var(--paper); display:flex; flex-direction:column; min-width:0;}
+  .topbar{display:flex; align-items:center; justify-content:space-between; padding:12px 22px; background:var(--surface); border-bottom:1px solid var(--border); gap:16px; flex-wrap:wrap;}
+  .crumb{display:flex; align-items:center; gap:8px; font-size:13.5px; font-weight:600;}
+  .crumb .car{color:var(--ink-faint); font-weight:400;}
+  .topbar-right{display:flex; align-items:center; gap:12px;}
+  .searchbox{display:flex; align-items:center; gap:6px; background:var(--surface-2); border:1px solid var(--border); border-radius:var(--r-sm); padding:6px 10px; font-size:12.5px; color:var(--ink-faint); width:180px;}
+  .iconbtn{width:30px; height:30px; border-radius:var(--r-sm); border:1px solid var(--border); background:var(--surface); display:flex; align-items:center; justify-content:center; position:relative;}
+  .iconbtn svg{width:15px; height:15px; stroke:var(--ink-soft); fill:none; stroke-width:1.75;}
+  .avatar{width:30px; height:30px; border-radius:50%; background:var(--accent); color:#fff; display:flex; align-items:center; justify-content:center; font-size:11.5px; font-weight:600; font-family:"IBM Plex Mono"; flex:none;}
+  .avatar.sm{width:22px; height:22px; font-size:9.5px;}
+
+  .page{padding:22px; display:flex; flex-direction:column; gap:16px;}
+  .page-head h1{font-size:22px;}
+  .page-head p{font-size:13px; color:var(--ink-faint); margin:3px 0 0;}
+
+  .chip{display:inline-flex; align-items:center; gap:5px; padding:3px 9px; border-radius:var(--r-pill); font-size:11.5px; font-weight:600; white-space:nowrap;}
+  .chip::before{content:""; width:6px; height:6px; flex:none;}
+  .chip.sq::before{border-radius:1px;}
+  .chip.ci::before{border-radius:50%;}
+
+  .panel{background:var(--surface); border:1px solid var(--border); border-radius:var(--r-md); padding:18px 20px;}
+  .panel h3{font-size:14px; margin-bottom:12px;}
+  table{width:100%; border-collapse:collapse; font-size:12.8px;}
+  th{text-align:left; font-family:"IBM Plex Mono"; font-size:10px; text-transform:uppercase; letter-spacing:.03em; color:var(--ink-faint); padding:8px 10px; border-bottom:1px solid var(--border);}
+  td{padding:9px 10px; border-bottom:1px solid var(--border); vertical-align:middle; color:var(--ink-soft);}
+  tr:last-child td{border-bottom:none;}
+  tbody tr:hover{background:var(--surface-2);}
+
+  /* --- unit header --- */
+  .unit-head{display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap;}
+  .unit-head h1{font-size:24px;}
+  .unit-head .sub{font-size:13px; color:var(--ink-faint); margin-top:2px;}
+  .banner{display:flex; align-items:center; justify-content:space-between; padding:10px 16px; border-radius:var(--r-sm); gap:12px; flex-wrap:wrap;}
+  .banner.crit{background:var(--rk-crit-b); color:var(--rk-crit-i);}
+  .banner b{font-family:"IBM Plex Mono"; font-size:11px; text-transform:uppercase; letter-spacing:.05em; display:block;}
+  .banner span.d{font-size:13px; font-weight:400;}
+
+  .tabs2{display:flex; gap:2px; border-bottom:1px solid var(--border);}
+  .tabs2 span{font-size:13px; padding:9px 6px; color:var(--ink-faint); border-bottom:2px solid transparent; cursor:pointer; margin-right:16px;}
+  .tabs2 span.on{color:var(--ink); border-color:var(--accent); font-weight:600;}
+
+  .two-col{display:grid; grid-template-columns:1.6fr 1fr; gap:16px;}
+  @media (max-width:900px){ .two-col{grid-template-columns:1fr;} }
+
+  .stepper{display:flex; align-items:center; margin:6px 0 4px;}
+  .step{display:flex; flex-direction:column; align-items:center; gap:6px; flex:1; position:relative;}
+  .step .c{width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:"IBM Plex Mono"; font-size:11px; background:var(--surface-2); color:var(--ink-faint); border:2px solid var(--border); z-index:1;}
+  .step.done .c{background:var(--st-op-i); color:#fff; border-color:var(--st-op-i);}
+  .step.now .c{background:var(--accent); color:#fff; border-color:var(--accent);}
+  .step .l{font-size:11px; color:var(--ink-faint); text-align:center;}
+  .step.now .l{color:var(--ink); font-weight:600;}
+  .step:not(:last-child)::after{content:""; position:absolute; top:13px; left:60%; width:80%; height:2px; background:var(--border);}
+  .step.done:not(:last-child)::after{background:var(--st-op-i);}
+
+  .factgrid{display:grid; grid-template-columns:repeat(2,1fr); gap:12px 20px; margin-top:14px;}
+  .fact .l{font-size:10.5px; text-transform:uppercase; color:var(--ink-faint); letter-spacing:.03em;}
+  .fact .v{font-size:13.5px; color:var(--ink); margin-top:2px;}
+
+  .feed{display:flex; flex-direction:column; gap:12px;}
+  .feed-it{display:flex; gap:10px; align-items:flex-start;}
+  .feed-it .who{font-size:12.5px; font-weight:600;}
+  .feed-it .txt{font-size:12.5px; color:var(--ink-soft); margin-top:1px;}
+  .feed-it .ts{font-size:10.5px; color:var(--ink-faint); margin-top:2px; font-family:"IBM Plex Mono";}
+  .sysdot{width:22px; height:22px; border-radius:50%; background:var(--surface-3); flex:none;}
+
+  .glist{display:flex; flex-direction:column; gap:4px; margin-top:12px;}
+  .glist a{font-size:12.5px; color:var(--accent-ink); text-decoration:none;}
+
+  /* checklist */
+  .task-title{color:var(--ink); font-weight:600;}
+  .gate-flag{display:inline-flex; align-items:center; gap:4px; font-size:11px; color:var(--ink-faint);}
+  .gate-flag svg{width:12px; height:12px; stroke:var(--ink-faint); fill:none; stroke-width:1.75;}
+  .fase-row td{background:var(--surface-2); font-family:"IBM Plex Mono"; font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-faint); padding:7px 10px;}
+  .btn-ghost2{border:1px dashed var(--border); background:transparent; color:var(--ink-faint); font-size:12.5px; padding:8px 12px; border-radius:var(--r-sm); align-self:flex-start;}
+  .btn-primary{background:var(--accent); color:#fff; font-weight:600; font-size:13px; padding:9px 15px; border-radius:var(--r-sm); border:none;}
+  .btn-secondary{background:transparent; border:1px solid var(--border); color:var(--ink); font-weight:600; font-size:13px; padding:9px 15px; border-radius:var(--r-sm);}
+
+  /* gantt */
+  .gtoolbar{display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;}
+  .seg{display:flex; border:1px solid var(--border); border-radius:var(--r-sm); overflow:hidden;}
+  .seg span{padding:6px 12px; font-size:12px; color:var(--ink-soft); cursor:pointer;}
+  .seg span.on{background:var(--accent-soft); color:var(--accent-ink); font-weight:600;}
+  .gantt-scale{display:grid; grid-template-columns:180px repeat(8,1fr); font-family:"IBM Plex Mono"; font-size:10px; color:var(--ink-faint); padding:0 0 6px; border-bottom:1px solid var(--border);}
+  .grow{position:relative;}
+  .gantt-row2{display:grid; grid-template-columns:180px 1fr; gap:0; align-items:center; padding:10px 0; border-bottom:1px solid var(--border);}
+  .gname{font-weight:600; font-size:12.5px;}
+  .gtags{display:flex; gap:5px; margin-top:4px;}
+  .gtrack{position:relative; height:24px;}
+  .gtrack .base{position:absolute; top:9px; height:6px; background:var(--surface-3); border-radius:100px;}
+  .gtrack .cur{position:absolute; top:4px; height:16px; border-radius:3px;}
+  .gtrack .ms{position:absolute; top:2px; width:10px; height:10px; background:var(--ink); transform:rotate(45deg); border-radius:1px;}
+  .today{position:absolute; top:0; bottom:0; width:1px; background:var(--rk-crit-i);}
+  .today::after{content:"Hoy"; position:absolute; top:-16px; left:4px; font-family:"IBM Plex Mono"; font-size:9px; color:var(--rk-crit-i);}
+
+  .modalover{background:var(--surface); border:1px solid var(--ink); border-radius:var(--r-md); padding:18px 20px; max-width:340px; box-shadow:var(--shadow-3); position:absolute; right:22px; top:70px;}
+  .modalover .t{font-family:"IBM Plex Mono"; font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--rk-crit-i); margin-bottom:6px; display:block;}
+
+  /* map */
+  .mapgrid{display:grid; grid-template-columns:1.6fr 1fr; gap:16px;}
+  @media (max-width:900px){ .mapgrid{grid-template-columns:1fr;} }
+  .mapcanvas{background:var(--surface-2); border-radius:var(--r-md); border:1px solid var(--border); position:relative; height:420px; overflow:hidden;}
+  .map-marker{width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; font-size:9px; font-family:"IBM Plex Mono"; position:absolute; cursor:pointer;}
+  .map-marker.ring{box-shadow:0 0 0 3px var(--surface-2), 0 0 0 5px var(--rk-crit-i);}
+  .map-marker.ring-med{box-shadow:0 0 0 3px var(--surface-2), 0 0 0 4px var(--rk-med-i);}
+  .maplabel{position:absolute; font-size:10px; color:var(--ink-faint); font-family:"IBM Plex Mono"; white-space:nowrap;}
+  .legend2{display:flex; gap:20px; flex-wrap:wrap; margin-top:10px;}
+  .legend2 .grp{display:flex; flex-direction:column; gap:5px;}
+  .legend2 .ttl{font-size:10.5px; text-transform:uppercase; letter-spacing:.04em; color:var(--ink-faint); margin-bottom:2px;}
+  .legend2 .row{display:flex; align-items:center; gap:6px; font-size:11.5px; color:var(--ink-soft);}
+  .legend2 .sw{width:10px; height:10px; border-radius:50%; flex:none;}
+
+  .detail-panel .row1{display:flex; gap:6px; margin-bottom:10px;}
+  .detail-panel .kv{display:flex; justify-content:space-between; font-size:12.5px; padding:6px 0; border-top:1px solid var(--border);}
+  .detail-panel .kv:first-of-type{border-top:none;}
+  .detail-panel .kv .l{color:var(--ink-faint);}
+  .detail-panel .bloq{font-size:12px; color:var(--rk-high-i); margin:4px 0;}
+
+  .annot-box{max-width:900px; margin:34px auto 0; padding:16px 24px;}
+  .annot-box .in{background:var(--surface); border:1px solid var(--border); border-radius:var(--r-md); padding:16px 18px;}
+  .annot-box b{font-family:"IBM Plex Mono"; font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--accent-ink); display:block; margin-bottom:8px;}
+  .annot-box ul{margin:0; padding-left:18px; font-size:13px; color:var(--ink-soft);}
+  .annot-box li{margin-bottom:5px;}
+
+  footer{max-width:900px; margin:40px auto 60px; padding:20px 24px; border-top:1px solid var(--border); color:var(--ink-faint); font-size:13px;}
+  .nextbox{background:var(--surface); border:1px solid var(--border); border-radius:var(--r-md); padding:18px 20px; margin-top:14px;}
+  .nextbox h4{font-size:14.5px; color:var(--ink); margin-bottom:6px;}
+</style>
+
+<div class="docbar">
+  <div class="links">
+    <a href="https://claude.ai/code/artifact/17b68830-e5c5-4427-a560-8ffb2e2635ce">Blueprint</a>
+    <a href="https://claude.ai/code/artifact/15486825-b3e8-4c48-8ea6-4e7a3b7303b0">Wireframes</a>
+    <a href="https://claude.ai/code/artifact/25d273c5-252c-47ed-8f30-7b4c33641587">Design System</a>
+    <a href="https://claude.ai/code/artifact/12df175d-4670-41dc-9fb0-193d1c07c6fa">Control Tower · Unidades</a>
+    <span class="tt">→ estás aquí: Alta fidelidad, pantallas 3–6</span>
+  </div>
+  <div class="theme-toggle"><button data-t="light">Claro</button><button data-t="" class="on">Sistema</button><button data-t="dark">Oscuro</button></div>
+</div>
+
+<div class="doc-intro">
+  <div class="kicker">Fase 1 → Alta fidelidad · 2/N</div>
+  <h1>Work Unit Detail, Gantt y Mapa</h1>
+  <p>Sigue la columna operativa: entrar a un PDV concreto (Resumen y Checklist), verlos todos en el tiempo (Gantt) y en el territorio (Mapa). Mismo shell, mismos tokens — cero decisiones nuevas de color o tipografía.</p>
+</div>
+
+<!-- ============ SCREEN 3 — DETAIL / RESUMEN ============ -->
+<div class="screen-label"><h2>Work Unit Detail · Resumen</h2><span>/pdv/malaga-centro</span></div>
+<div class="appwrap">
+  <div class="app">
+    <nav class="rail">
+      <div class="rail-brand"><div class="mark"></div><div><b>SERCOM</b><br><span>Vodafone</span></div></div>
+      <div class="rail-switch"><div><b>Kioscos España</b><span>Rollout 2026</span></div><span>▾</span></div>
+      <div class="rail-grp">Proyecto</div>
+      <a class="rail-it"><svg viewBox="0 0 24 24"><rect x="3" y="12" width="4" height="8"/><rect x="10" y="7" width="4" height="13"/><rect x="17" y="3" width="4" height="17"/></svg>Control Tower</a>
+      <a class="rail-it on"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="1"/><path d="M3 10h18"/></svg>Unidades</a>
+      <a class="rail-it"><svg viewBox="0 0 24 24"><path d="M4 6h10M4 12h16M4 18h7"/></svg>Gantt</a>
+      <a class="rail-it"><svg viewBox="0 0 24 24"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/></svg>Mapa</a>
+      <a class="rail-it"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="1"/></svg>Calendario</a>
+      <a class="rail-it"><svg viewBox="0 0 24 24"><path d="M12 9v5M12 17h.01"/><path d="M10.3 3.9 2.6 18a1.6 1.6 0 0 0 1.4 2.4h16a1.6 1.6 0 0 0 1.4-2.4L13.7 3.9a1.6 1.6 0 0 0-2.8 0z"/></svg>Incidencias</a>
+      <a class="rail-it"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="1"/></svg>Plantillas</a>
+      <a class="rail-it"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/></svg>Settings · Drive</a>
+      <div class="rail-grp">Personal</div>
+      <a class="rail-it"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>Mis tareas</a>
+      <div class="rail-foot">v1.0 · Kioscos España 2026</div>
+    </nav>
+    <div class="content">
+      <div class="topbar">
+        <div class="crumb">Kioscos España <span class="car">/</span> Málaga Centro</div>
+        <div class="topbar-right">
+          <div class="searchbox">Buscar…</div>
+          <div class="iconbtn"><svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/></svg></div>
+          <div class="avatar">JR</div>
+        </div>
+      </div>
+      <div class="page">
+        <div class="unit-head">
+          <div><h1>Málaga Centro</h1><div class="sub">PDV #KSK-024 · instalación prevista 27 AGO 2026</div></div>
+          <button class="btn-secondary">Editar instalación</button>
+        </div>
+        <div class="banner crit"><div><b>Riesgo crítico</b><span class="d">Faltan 8 días y hay 2 prerequisitos obligatorios sin completar.</span></div><span class="chip sq" style="background:var(--surface); color:var(--st-ready-i);">Not Ready</span></div>
+
+        <div class="tabs2"><span class="on">Resumen</span><span>Checklist</span><span>Timeline</span><span>Evidencias</span><span>Incidencias</span><span>Comentarios</span><span>Auditoría</span></div>
+
+        <div class="two-col">
+          <div class="panel">
+            <h3>Progreso hacia Operativo</h3>
+            <div class="stepper">
+              <div class="step done"><div class="c">✓</div><div class="l">Ready for<br>Install</div></div>
+              <div class="step now"><div class="c">●</div><div class="l">Pending<br>Validation</div></div>
+              <div class="step"><div class="c">3</div><div class="l">Operative</div></div>
+            </div>
+            <div class="factgrid">
+              <div class="fact"><div class="l">Provincia</div><div class="v">Málaga</div></div>
+              <div class="fact"><div class="l">CP</div><div class="v">29001</div></div>
+              <div class="fact"><div class="l">Dirección</div><div class="v">Calle Larios 12</div></div>
+              <div class="fact"><div class="l">Contacto tienda</div><div class="v">Ana Ruiz · 622 xxx xxx</div></div>
+              <div class="fact"><div class="l">Instalador</div><div class="v">Pedro M. · Proveedor B</div></div>
+              <div class="fact"><div class="l">Plantilla</div><div class="v">Instalación Kiosco v2.1</div></div>
+            </div>
+          </div>
+          <div class="col" style="display:flex; flex-direction:column; gap:16px;">
+            <div class="panel">
+              <h3>Resumen</h3>
+              <div class="detail-panel">
+                <div class="kv"><span class="l">Estado</span><span class="chip sq" style="background:var(--st-ready-b); color:var(--st-ready-i);">Not Ready</span></div>
+                <div class="kv"><span class="l">Riesgo</span><span class="chip ci" style="background:var(--rk-crit-b); color:var(--rk-crit-i);">Crítico · 82/100</span></div>
+                <div class="kv"><span class="l">Responsable</span><span>Pedro M.</span></div>
+                <div class="kv"><span class="l">Progreso</span><span class="mono">11 / 14</span></div>
+              </div>
+            </div>
+            <div class="panel">
+              <h3>Actividad reciente</h3>
+              <div class="feed">
+                <div class="feed-it"><div class="avatar sm">PG</div><div><div class="who">Patricia G.</div><div class="txt">Comentó "Pendiente confirmación de acceso técnico."</div><div class="ts">19 AGO · 09:42</div></div></div>
+                <div class="feed-it"><div class="avatar sm">JR</div><div><div class="who">Juan Rodríguez</div><div class="txt">Cambió riesgo Alto → Crítico</div><div class="ts">19 AGO · 09:31</div></div></div>
+                <div class="feed-it"><div class="sysdot"></div><div><div class="who">Sistema</div><div class="txt">Marcó "Confirmar recepción" como vencida</div><div class="ts">18 AGO · 00:01</div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ SCREEN 4 — DETAIL / CHECKLIST ============ -->
+<div class="screen-label"><h2>Work Unit Detail · Checklist</h2><span>/pdv/malaga-centro/checklist</span></div>
+<div class="appwrap">
+  <div class="app">
+    <nav class="rail">
+      <div class="rail-brand"><div class="mark"></div><div><b>SERCOM</b><br><span>Vodafone</span></div></div>
+      <div class="rail-switch"><div><b>Kioscos España</b><span>Rollout 2026</span></div><span>▾</span></div>
+      <div class="rail-grp">Proyecto</div>
+      <a class="rail-it"><svg viewBox="0 0 24 24"><rect x="3" y="12" width="4" height="8"/><rect x="10" y="7" width="4" height="13"/><rect x="17" y="3" width="4" height="17"/></svg>Control Tower</a>
+      <a class="rail-it on"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="1"/></svg>Unidades</a>
+      <a class="rail-it"><svg viewBox="0 0 24 24"><path d="M4 6h10M4 12h16M4 18h7"/></svg>Gantt</a>
+      <a class="rail-it"><svg viewBox="0 0 24 24"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/></svg>Mapa</a>
+      <div class="rail-grp">Personal</div>
+      <a class="rail-it"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>Mis tareas</a>
+      <div class="rail-foot">v1.0 · Kioscos España 2026</div>
+    </nav>
+    <div class="content">
+      <div class="topbar"><div class="crumb">Kioscos España <span class="car">/</span> Málaga Centro</div><div class="topbar-right"><div class="avatar">JR</div></div></div>
+      <div class="page">
+        <div class="unit-head"><div><h1>Málaga Centro</h1><div class="sub">11 de 14 tareas completadas · plantilla Instalación Kiosco v2.1</div></div></div>
+        <div class="tabs2"><span>Resumen</span><span class="on">Checklist</span><span>Timeline</span><span>Evidencias</span><span>Incidencias</span><span>Comentarios</span><span>Auditoría</span></div>
+        <div class="panel" style="padding:0;">
+          <table>
+            <tr><th style="width:26px;"></th><th>Tarea</th><th>Owner</th><th>Fecha</th><th>Gate</th><th>Depende de</th><th>Evidencia</th></tr>
+            <tr class="fase-row"><td colspan="7">Pre-instalación</td></tr>
+            <tr><td>☑</td><td class="task-title">Confirmar electricidad</td><td>Tienda</td><td class="mono">20 AGO</td><td>—</td><td>—</td><td>—</td></tr>
+            <tr><td>☐</td><td class="task-title">Confirmar recepción del kiosco</td><td>Tienda</td><td class="mono" style="color:var(--rk-crit-i); font-weight:600;">Vencida</td><td><span class="gate-flag"><svg viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="10" rx="1"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>Ready for Install</span></td><td>Enviar equipo</td><td>—</td></tr>
+            <tr class="fase-row"><td colspan="7">Instalación</td></tr>
+            <tr><td>☐</td><td class="task-title">Adjuntar fotografía final</td><td>Pedro M.</td><td class="mono">27 AGO</td><td><span class="gate-flag"><svg viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="10" rx="1"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>Pending Validation</span></td><td>Instalar equipo</td><td><span class="chip ci" style="background:var(--rk-med-b); color:var(--rk-med-i);">2 / 4</span></td></tr>
+            <tr class="fase-row"><td colspan="7">Post-instalación</td></tr>
+            <tr><td>☐</td><td class="task-title">Validación Operations</td><td>Operations</td><td class="mono">28 AGO</td><td><span class="gate-flag"><svg viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="10" rx="1"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>Operative</span></td><td>Adjuntar fotografía final</td><td>—</td></tr>
+          </table>
+        </div>
+        <button class="btn-ghost2">+ Añadir tarea al checklist</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="annot-box"><div class="in"><b>Qué cambió respecto al mockup original</b><ul>
+  <li>La fila de tarea expone gate, dependencia y evidencia requerida — invisibles en el mockup original (F11).</li>
+  <li>El stepper de gates en Resumen deja explícito en qué punto del recorrido a Operativo está la unidad, sin tener que interpretarlo del estado de texto.</li>
+</ul></div></div>
+
+<!-- ============ SCREEN 5 — GANTT ============ -->
+<div class="screen-label"><h2>Gantt</h2><span>/proyectos/kioscos-2026/gantt</span></div>
+<div class="appwrap">
+  <div class="app">
+    <nav class="rail">
+      <div class="rail-brand"><div class="mark"></div><div><b>SERCOM</b><br><span>Vodafone</span></div></div>
+      <div class="rail-switch"><div><b>Kioscos España</b><span>Rollout 2026</span></div><span>▾</span></div>
+      <div class="rail-grp">Proyecto</div>
+      <a class="rail-it"><svg viewBox="0 0 24 24"><rect x="3" y="12" width="4" height="8"/><rect x="10" y="7" width="4" height="13"/><rect x="17" y="3" width="4" height="17"/></svg>Control Tower</a>
+      <a class="rail-it"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="1"/></svg>Unidades</a>
+      <a class="rail-it on"><svg viewBox="0 0 24 24"><path d="M4 6h10M4 12h16M4 18h7"/></svg>Gantt</a>
+      <a class="rail-it"><svg viewBox="0 0 24 24"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/></svg>Mapa</a>
+      <div class="rail-grp">Personal</div>
+      <a class="rail-it"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>Mis tareas</a>
+      <div class="rail-foot">v1.0 · Kioscos España 2026</div>
+    </nav>
+    <div class="content" style="position:relative;">
+      <div class="topbar"><div class="crumb">Kioscos España · Rollout 2026</div><div class="topbar-right"><div class="avatar">JR</div></div></div>
+      <div class="page">
+        <div class="gtoolbar">
+          <div class="page-head"><h1>Gantt</h1><p>Plan base vs planificación actual · 19 AGO – 19 OCT 2026</p></div>
+          <div style="display:flex; gap:8px; align-items:center;">
+            <div class="seg"><span class="on">Semana</span><span>Mes</span></div>
+            <button class="btn-secondary">Actualizar baseline</button>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="gantt-row2">
+            <div><div class="gname">Madrid · Sol</div><div class="gtags"><span class="chip sq" style="background:var(--st-op-b); color:var(--st-op-i); font-size:10px; padding:1px 7px;">Operativo</span><span class="chip ci" style="background:var(--rk-low-b); color:var(--rk-low-i); font-size:10px; padding:1px 7px;">Bajo</span></div></div>
+            <div class="gtrack"><div class="base" style="left:1%; width:32%;"></div><div class="cur" style="left:2%; width:30%; background:var(--st-op-i);"></div><div class="ms" style="left:30%;"></div></div>
+          </div>
+          <div class="gantt-row2">
+            <div><div class="gname">Barcelona · Glòries</div><div class="gtags"><span class="chip sq" style="background:var(--st-install-b); color:var(--st-install-i); font-size:10px; padding:1px 7px;">Ready</span><span class="chip ci" style="background:var(--rk-med-b); color:var(--rk-med-i); font-size:10px; padding:1px 7px;">Medio</span></div></div>
+            <div class="gtrack"><div class="base" style="left:14%; width:34%;"></div><div class="cur" style="left:16%; width:32%; background:var(--st-install-i);"></div><div class="ms" style="left:46%;"></div></div>
+          </div>
+          <div class="gantt-row2">
+            <div><div class="gname">Málaga Centro</div><div class="gtags"><span class="chip sq" style="background:var(--st-ready-b); color:var(--st-ready-i); font-size:10px; padding:1px 7px;">Not Ready</span><span class="chip ci" style="background:var(--rk-crit-b); color:var(--rk-crit-i); font-size:10px; padding:1px 7px;">Crítico</span></div></div>
+            <div class="gtrack" style="position:relative;"><div class="today" style="left:18%;"></div><div class="base" style="left:18%; width:34%;"></div><div class="cur" style="left:20%; width:33%; background:var(--rk-crit-i);"></div><div class="ms" style="left:51%; background:var(--rk-crit-i);"></div></div>
+          </div>
+          <div class="gantt-row2">
+            <div><div class="gname">Sevilla Nervión</div><div class="gtags"><span class="chip sq" style="background:var(--st-install-b); color:var(--st-install-i); font-size:10px; padding:1px 7px;">Ready</span><span class="chip ci" style="background:var(--rk-low-b); color:var(--rk-low-i); font-size:10px; padding:1px 7px;">Bajo</span></div></div>
+            <div class="gtrack"><div class="base" style="left:20%; width:22%;"></div><div class="cur" style="left:22%; width:22%; background:var(--st-install-i);"></div><div class="ms" style="left:44%;"></div></div>
+          </div>
+          <div class="gantt-row2">
+            <div><div class="gname">Bilbao Centro</div><div class="gtags"><span class="chip sq" style="background:var(--st-ready-b); color:var(--st-ready-i); font-size:10px; padding:1px 7px;">Not Ready</span><span class="chip ci" style="background:var(--rk-med-b); color:var(--rk-med-i); font-size:10px; padding:1px 7px;">Medio</span></div></div>
+            <div class="gtrack"><div class="base" style="left:26%; width:30%;"></div><div class="cur" style="left:28%; width:29%; background:var(--rk-med-i);"></div><div class="ms" style="left:57%;"></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="modalover">
+        <span class="t">Confirmar acción irreversible</span>
+        <p style="font-size:13px; margin:0 0 4px; font-weight:600;">¿Actualizar baseline de las 40 unidades?</p>
+        <p style="font-size:12.5px; color:var(--ink-faint); margin:0 0 12px;">Sustituye el plan base actual. Queda registrado en auditoría y no se puede deshacer.</p>
+        <div style="display:flex; gap:8px;"><button class="btn-secondary" style="flex:1;">Cancelar</button><button class="btn-primary" style="flex:1;">Actualizar</button></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="annot-box"><div class="in"><b>Qué cambió respecto al mockup original</b><ul>
+  <li>Cada fila lleva dos chips fijos, estado y riesgo — el subtítulo ya no alterna entre uno u otro (F2).</li>
+  <li>"Actualizar baseline" abre confirmación explícita en vez de ejecutar al primer clic (F14).</li>
+  <li>La línea "Hoy" solo se dibuja en riesgo crítico/alto para no saturar filas ya operativas o muy adelantadas en el tiempo.</li>
+</ul></div></div>
+
+<!-- ============ SCREEN 6 — MAPA ============ -->
+<div class="screen-label"><h2>Mapa de España</h2><span>/proyectos/kioscos-2026/mapa</span></div>
+<div class="appwrap">
+  <div class="app">
+    <nav class="rail">
+      <div class="rail-brand"><div class="mark"></div><div><b>SERCOM</b><br><span>Vodafone</span></div></div>
+      <div class="rail-switch"><div><b>Kioscos España</b><span>Rollout 2026</span></div><span>▾</span></div>
+      <div class="rail-grp">Proyecto</div>
+      <a class="rail-it"><svg viewBox="0 0 24 24"><rect x="3" y="12" width="4" height="8"/><rect x="10" y="7" width="4" height="13"/><rect x="17" y="3" width="4" height="17"/></svg>Control Tower</a>
+      <a class="rail-it"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="1"/></svg>Unidades</a>
+      <a class="rail-it"><svg viewBox="0 0 24 24"><path d="M4 6h10M4 12h16M4 18h7"/></svg>Gantt</a>
+      <a class="rail-it on"><svg viewBox="0 0 24 24"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/></svg>Mapa</a>
+      <div class="rail-grp">Personal</div>
+      <a class="rail-it"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>Mis tareas</a>
+      <div class="rail-foot">v1.0 · Kioscos España 2026</div>
+    </nav>
+    <div class="content">
+      <div class="topbar"><div class="crumb">Kioscos España · Rollout 2026</div><div class="topbar-right"><div class="avatar">JR</div></div></div>
+      <div class="page">
+        <div class="page-head"><h1>Mapa de España</h1><p>Estado operativo y riesgo de las 40 instalaciones</p></div>
+        <div class="mapgrid">
+          <div>
+            <div class="mapcanvas">
+              <svg width="100%" height="100%" viewBox="0 0 400 380" preserveAspectRatio="xMidYMid meet" style="position:absolute; inset:0;">
+                <path d="M60,60 Q40,140 70,220 Q50,290 120,330 Q200,360 280,320 Q350,300 340,220 Q360,140 300,80 Q220,40 150,50 Q100,40 60,60 Z" fill="var(--surface-3)" opacity="0.6"/>
+              </svg>
+              <div class="map-marker" style="top:70px; left:150px; background:var(--st-planned-i);">MAD</div>
+              <div class="map-marker" style="top:50px; left:290px; background:var(--st-op-i);">BCN</div>
+              <div class="map-marker ring" style="top:255px; left:110px; background:var(--st-ready-i);">MAL</div>
+              <div class="map-marker ring-med" style="top:220px; left:250px; background:var(--st-ready-i);">VAL</div>
+              <div class="map-marker" style="top:180px; left:60px; background:var(--st-install-i);">SEV</div>
+              <div class="map-marker ring-med" style="top:40px; left:70px; background:var(--st-ready-i);">BIL</div>
+              <div class="map-marker" style="top:30px; left:40px; background:var(--st-prep-i);">COR</div>
+              <div class="map-marker" style="top:100px; left:230px; background:var(--st-prep-i);">ZAR</div>
+              <div class="maplabel" style="top:96px; left:130px;">Madrid</div>
+              <div class="maplabel" style="top:76px; left:270px;">Barcelona</div>
+              <div class="maplabel" style="top:284px; left:88px;">Málaga</div>
+            </div>
+            <div class="legend2">
+              <div class="grp"><div class="ttl">Estado (relleno)</div>
+                <div class="row"><span class="sw" style="background:var(--st-planned-i);"></span>Planned</div>
+                <div class="row"><span class="sw" style="background:var(--st-prep-i);"></span>En preparación</div>
+                <div class="row"><span class="sw" style="background:var(--st-ready-i);"></span>Ready / Not Ready</div>
+                <div class="row"><span class="sw" style="background:var(--st-install-i);"></span>Installing</div>
+                <div class="row"><span class="sw" style="background:var(--st-op-i);"></span>Operative</div>
+              </div>
+              <div class="grp"><div class="ttl">Riesgo (anillo, independiente)</div>
+                <div class="row"><span class="sw" style="background:transparent; border:2px solid var(--rk-crit-i);"></span>Alto/Crítico — anillo grueso</div>
+                <div class="row"><span class="sw" style="background:transparent; border:1.5px solid var(--rk-med-i);"></span>Medio — anillo fino</div>
+                <div class="row"><span class="sw" style="background:transparent;"></span>Bajo — sin anillo</div>
+              </div>
+            </div>
+          </div>
+          <div class="panel detail-panel">
+            <h3>Málaga Centro</h3>
+            <div class="row1"><span class="chip sq" style="background:var(--st-ready-b); color:var(--st-ready-i);">Not Ready</span><span class="chip ci" style="background:var(--rk-crit-b); color:var(--rk-crit-i);">Crítico</span></div>
+            <div class="kv"><span class="l">Instalación prevista</span><span>27 AGO 2026</span></div>
+            <div class="kv"><span class="l">Progreso</span><span class="mono">11 / 14</span></div>
+            <div class="kv"><span class="l">Responsable</span><span>Pedro M.</span></div>
+            <div style="margin-top:10px;"><div class="l" style="font-size:10.5px; text-transform:uppercase; color:var(--ink-faint);">Bloqueos críticos</div>
+              <div class="bloq">Recepción del kiosco · vencida 2 días</div>
+              <div class="bloq">Confirmar acceso · vence hoy</div>
+            </div>
+            <button class="btn-primary" style="width:100%; margin-top:12px;">Ver instalación</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="annot-box"><div class="in"><b>Qué cambió respecto al mockup original</b><ul>
+  <li>El relleno del marcador codifica solo estado; el anillo, solo riesgo — dos leyendas separadas, "At Risk" ya no existe como estado (F1).</li>
+  <li>El mapa base es una silueta estilizada, no cartografía de precisión — suficiente para lectura relativa de ubicación, no para navegación.</li>
+</ul></div></div>
+
+<footer>
+  <div class="nextbox">
+    <h4>Sigo con el resto</h4>
+    <p style="margin:0 0 8px; font-size:13.5px; color:var(--ink-soft);">Quedan: capa de Organización (Portfolio, Usuarios, Permisos, Auditoría), Proyecto (Settings·Drive, Plantillas, Importación), Evidencias/Incidencias/Comentarios/Timeline, Mis tareas/Calendario, y el flujo móvil completo del instalador.</p>
+    <p style="margin:0;"><a href="https://claude.ai/code/artifact/e725c031-ded7-413f-bbc6-c35831a59789" style="color:var(--accent-ink);">Ver flujo móvil del instalador →</a></p>
+  </div>
+  Gestor de Proyectos SERCOM · Vodafone — Alta fidelidad sobre Design System v1.0.
+</footer>
+
+<script>
+  (function(){
+    var root = document.documentElement;
+    var btns = document.querySelectorAll('.theme-toggle button');
+    btns.forEach(function(b){
+      b.addEventListener('click', function(){
+        var t = b.getAttribute('data-t');
+        if(t){ root.setAttribute('data-theme', t); } else { root.removeAttribute('data-theme'); }
+        btns.forEach(function(x){ x.classList.remove('on'); });
+        b.classList.add('on');
+      });
+    });
+  })();
+</script>

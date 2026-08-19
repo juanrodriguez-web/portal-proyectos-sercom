@@ -1,0 +1,200 @@
+@import "tailwindcss";
+
+/*
+ * Tokens copiados 1:1 del design system publicado
+ * (design/04-design-system.html) para que los componentes reales no
+ * diverjan del artifact de referencia. Cualquier cambio de paleta debe
+ * hacerse primero ahi y replicarse aqui.
+ */
+:root {
+  --paper: #f3f5f4;
+  --surface: #ffffff;
+  --surface-2: #eaeeed;
+  --surface-3: #dee4e3;
+  --border: #d3dad9;
+  --ink: #10151b;
+  --ink-soft: #3c4750;
+  --ink-faint: #6c7780;
+  --brand: #e60000;
+  --brand-ink: #ffffff;
+  --accent: #0e7c86;
+  --accent-strong: #0a5e66;
+  --accent-soft: #dff0f0;
+  --accent-ink: #0a5e66;
+
+  --st-planned-i: #56636e;
+  --st-planned-b: #e7e9ea;
+  --st-prep-i: #3e6e93;
+  --st-prep-b: #e1eaf1;
+  --st-ready-i: #21578e;
+  --st-ready-b: #d9e6f4;
+  --st-install-i: #0e7c86;
+  --st-install-b: #dceeee;
+  --st-pending-i: #916012;
+  --st-pending-b: #f3e7ce;
+  --st-op-i: #1e7a4c;
+  --st-op-b: #dcefe1;
+
+  --rk-low-i: #746d5c;
+  --rk-low-b: #ece8de;
+  --rk-med-i: #916012;
+  --rk-med-b: #f3e7ce;
+  --rk-high-i: #a6501f;
+  --rk-high-b: #f5ddcb;
+  --rk-crit-i: #b23a22;
+  --rk-crit-b: #f6ded8;
+
+  --green: #1e7a4c;
+  --green-soft: #dcefe1;
+  --red: #b23a22;
+  --red-soft: #f6ded8;
+  --amber: #916012;
+  --amber-soft: #f3e7ce;
+
+  --shadow-1: 0 1px 2px rgba(16, 21, 27, 0.05), 0 2px 6px -2px rgba(16, 21, 27, 0.08);
+  --shadow-2: 0 2px 4px rgba(16, 21, 27, 0.06), 0 10px 24px -10px rgba(16, 21, 27, 0.18);
+  --shadow-3: 0 4px 10px rgba(16, 21, 27, 0.1), 0 24px 48px -18px rgba(16, 21, 27, 0.3);
+  --r-xs: 2px;
+  --r-sm: 4px;
+  --r-md: 8px;
+  --r-pill: 100px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0b1014;
+    --surface: #121820;
+    --surface-2: #1a222b;
+    --surface-3: #212b34;
+    --border: #2b3640;
+    --ink: #edf1f2;
+    --ink-soft: #c3ccd1;
+    --ink-faint: #8a97a1;
+    --brand: #ff4b4b;
+    --brand-ink: #10151b;
+    --accent: #4fd6d9;
+    --accent-strong: #7fe6e8;
+    --accent-soft: #123336;
+    --accent-ink: #7fe6e8;
+
+    --st-planned-i: #9daab2;
+    --st-planned-b: #232d35;
+    --st-prep-i: #86b4da;
+    --st-prep-b: #16283a;
+    --st-ready-i: #7fb0e6;
+    --st-ready-b: #122b47;
+    --st-install-i: #4fd6d9;
+    --st-install-b: #123336;
+    --st-pending-i: #e3b563;
+    --st-pending-b: #2e260f;
+    --st-op-i: #57cb8f;
+    --st-op-b: #12291c;
+
+    --rk-low-i: #b7af9c;
+    --rk-low-b: #26241c;
+    --rk-med-i: #e3b563;
+    --rk-med-b: #2e260f;
+    --rk-high-i: #f0975e;
+    --rk-high-b: #34220f;
+    --rk-crit-i: #f1725a;
+    --rk-crit-b: #341c16;
+
+    --green: #57cb8f;
+    --green-soft: #12291c;
+    --red: #f1725a;
+    --red-soft: #341c16;
+    --amber: #e3b563;
+    --amber-soft: #2e260f;
+  }
+}
+
+:root[data-theme="dark"] {
+  --paper: #0b1014;
+  --surface: #121820;
+  --surface-2: #1a222b;
+  --surface-3: #212b34;
+  --border: #2b3640;
+  --ink: #edf1f2;
+  --ink-soft: #c3ccd1;
+  --ink-faint: #8a97a1;
+  --brand: #ff4b4b;
+  --brand-ink: #10151b;
+  --accent: #4fd6d9;
+  --accent-strong: #7fe6e8;
+  --accent-soft: #123336;
+  --accent-ink: #7fe6e8;
+
+  --st-planned-i: #9daab2;
+  --st-planned-b: #232d35;
+  --st-prep-i: #86b4da;
+  --st-prep-b: #16283a;
+  --st-ready-i: #7fb0e6;
+  --st-ready-b: #122b47;
+  --st-install-i: #4fd6d9;
+  --st-install-b: #123336;
+  --st-pending-i: #e3b563;
+  --st-pending-b: #2e260f;
+  --st-op-i: #57cb8f;
+  --st-op-b: #12291c;
+
+  --rk-low-i: #b7af9c;
+  --rk-low-b: #26241c;
+  --rk-med-i: #e3b563;
+  --rk-med-b: #2e260f;
+  --rk-high-i: #f0975e;
+  --rk-high-b: #34220f;
+  --rk-crit-i: #f1725a;
+  --rk-crit-b: #341c16;
+
+  --green: #57cb8f;
+  --green-soft: #12291c;
+  --red: #f1725a;
+  --red-soft: #341c16;
+  --amber: #e3b563;
+  --amber-soft: #2e260f;
+}
+
+@theme inline {
+  --color-paper: var(--paper);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-border: var(--border);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-ink-faint: var(--ink-faint);
+  --color-brand: var(--brand);
+  --color-accent: var(--accent);
+  --color-accent-strong: var(--accent-strong);
+  --color-accent-soft: var(--accent-soft);
+  --font-sans: var(--font-ibm-plex-sans);
+  --font-condensed: var(--font-ibm-plex-sans-condensed);
+  --font-mono: var(--font-ibm-plex-mono);
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-ibm-plex-sans), system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-ibm-plex-sans-condensed), system-ui, sans-serif;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+code,
+.mono {
+  font-family: var(--font-ibm-plex-mono), ui-monospace, monospace;
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}

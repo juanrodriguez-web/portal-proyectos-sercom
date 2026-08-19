@@ -1,0 +1,594 @@
+<title>Control Tower Operations</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  :root{
+    --paper:#F3F5F4; --surface:#FFFFFF; --surface-2:#EAEEED; --surface-3:#DEE4E3;
+    --border:#D3DAD9; --ink:#10151B; --ink-soft:#3C4750; --ink-faint:#6C7780;
+    --accent:#0E7C86; --accent-strong:#0A5E66; --accent-soft:#DFF0F0; --accent-ink:#0A5E66;
+    --st-planned-i:#56636E; --st-planned-b:#E7E9EA;
+    --st-prep-i:#3E6E93; --st-prep-b:#E1EAF1;
+    --st-ready-i:#21578E; --st-ready-b:#D9E6F4;
+    --st-install-i:#0E7C86; --st-install-b:#DCEEEE;
+    --st-pending-i:#916012; --st-pending-b:#F3E7CE;
+    --st-op-i:#1E7A4C; --st-op-b:#DCEFE1;
+    --rk-low-i:#746D5C; --rk-low-b:#ECE8DE;
+    --rk-med-i:#916012; --rk-med-b:#F3E7CE;
+    --rk-high-i:#A6501F; --rk-high-b:#F5DDCB;
+    --rk-crit-i:#B23A22; --rk-crit-b:#F6DED8;
+    --shadow-1:0 1px 2px rgba(16,21,27,.05), 0 2px 6px -2px rgba(16,21,27,.08);
+    --shadow-2:0 2px 4px rgba(16,21,27,.06), 0 10px 24px -10px rgba(16,21,27,.18);
+    --shadow-3:0 4px 10px rgba(16,21,27,.10), 0 24px 48px -18px rgba(16,21,27,.30);
+    --r-xs:2px; --r-sm:4px; --r-md:8px; --r-pill:100px;
+    --rail-bg:#0D1218; --rail-ink:#C7D0D6; --rail-ink-strong:#F2F5F6; --rail-line:#1E2731;
+    --rail-accent-bg:#123336; --rail-accent-ink:#4FD6D9; --brand:#E60000;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --paper:#0B1014; --surface:#121820; --surface-2:#1A222B; --surface-3:#212B34;
+      --border:#2B3640; --ink:#EDF1F2; --ink-soft:#C3CCD1; --ink-faint:#8A97A1;
+      --accent:#4FD6D9; --accent-strong:#7FE6E8; --accent-soft:#123336; --accent-ink:#7FE6E8;
+      --st-planned-i:#9DAAB2; --st-planned-b:#232D35; --st-prep-i:#86B4DA; --st-prep-b:#16283A;
+      --st-ready-i:#7FB0E6; --st-ready-b:#122B47; --st-install-i:#4FD6D9; --st-install-b:#123336;
+      --st-pending-i:#E3B563; --st-pending-b:#2E260F; --st-op-i:#57CB8F; --st-op-b:#12291C;
+      --rk-low-i:#B7AF9C; --rk-low-b:#26241C; --rk-med-i:#E3B563; --rk-med-b:#2E260F;
+      --rk-high-i:#F0975E; --rk-high-b:#34220F; --rk-crit-i:#F1725A; --rk-crit-b:#341C16;
+      --shadow-1:0 1px 2px rgba(0,0,0,.4), 0 2px 8px -2px rgba(0,0,0,.5);
+      --shadow-2:0 2px 6px rgba(0,0,0,.4), 0 12px 26px -10px rgba(0,0,0,.6);
+      --shadow-3:0 4px 12px rgba(0,0,0,.5), 0 26px 52px -18px rgba(0,0,0,.75);
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#0B1014; --surface:#121820; --surface-2:#1A222B; --surface-3:#212B34;
+    --border:#2B3640; --ink:#EDF1F2; --ink-soft:#C3CCD1; --ink-faint:#8A97A1;
+    --accent:#4FD6D9; --accent-strong:#7FE6E8; --accent-soft:#123336; --accent-ink:#7FE6E8;
+    --st-planned-i:#9DAAB2; --st-planned-b:#232D35; --st-prep-i:#86B4DA; --st-prep-b:#16283A;
+    --st-ready-i:#7FB0E6; --st-ready-b:#122B47; --st-install-i:#4FD6D9; --st-install-b:#123336;
+    --st-pending-i:#E3B563; --st-pending-b:#2E260F; --st-op-i:#57CB8F; --st-op-b:#12291C;
+    --rk-low-i:#B7AF9C; --rk-low-b:#26241C; --rk-med-i:#E3B563; --rk-med-b:#2E260F;
+    --rk-high-i:#F0975E; --rk-high-b:#34220F; --rk-crit-i:#F1725A; --rk-crit-b:#341C16;
+    --shadow-1:0 1px 2px rgba(0,0,0,.4), 0 2px 8px -2px rgba(0,0,0,.5);
+    --shadow-2:0 2px 6px rgba(0,0,0,.4), 0 12px 26px -10px rgba(0,0,0,.6);
+    --shadow-3:0 4px 12px rgba(0,0,0,.5), 0 26px 52px -18px rgba(0,0,0,.75);
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--paper); color:var(--ink); font-family:"IBM Plex Sans",system-ui,sans-serif; font-size:14.5px; line-height:1.5; -webkit-font-smoothing:antialiased;}
+  h1,h2,h3,h4{font-family:"IBM Plex Sans Condensed",system-ui,sans-serif; font-weight:600; margin:0; color:var(--ink);}
+  .mono{font-family:"IBM Plex Mono",ui-monospace,monospace;}
+  .tabular{font-variant-numeric:tabular-nums;}
+
+  .docbar{display:flex; align-items:center; justify-content:space-between; padding:12px 20px; background:var(--surface); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:20; flex-wrap:wrap; gap:10px;}
+  .docbar .links{display:flex; gap:14px; flex-wrap:wrap;}
+  .docbar a{color:var(--accent-ink); text-decoration:none; font-size:12.5px;}
+  .docbar .tt{font-size:11px; color:var(--ink-faint);}
+  .theme-toggle{display:flex; gap:2px; background:var(--surface-2); border:1px solid var(--border); border-radius:var(--r-sm); padding:2px;}
+  .theme-toggle button{font-family:"IBM Plex Mono"; font-size:10px; text-transform:uppercase; padding:5px 8px; border:none; background:transparent; color:var(--ink-faint); border-radius:2px; cursor:pointer;}
+  .theme-toggle button.on{background:var(--surface); color:var(--ink); box-shadow:var(--shadow-1);}
+  .doc-intro{max-width:900px; margin:0 auto; padding:34px 24px 10px;}
+  .doc-intro .kicker{font-family:"IBM Plex Mono"; font-size:11.5px; color:var(--accent-ink); text-transform:uppercase; letter-spacing:.1em; margin-bottom:10px;}
+  .doc-intro h1{font-size:28px; margin-bottom:8px; max-width:26ch;}
+  .doc-intro p{max-width:68ch; color:var(--ink-soft); font-size:15px;}
+  .screen-label{max-width:1360px; margin:38px auto 0; padding:0 24px; display:flex; align-items:baseline; gap:10px;}
+  .screen-label h2{font-size:18px;}
+  .screen-label span{font-family:"IBM Plex Mono"; font-size:11px; color:var(--ink-faint);}
+
+  .appwrap{max-width:1360px; margin:16px auto 60px; padding:0 24px;}
+  .app{display:grid; grid-template-columns:220px 1fr; border:1px solid var(--border); border-radius:var(--r-md); overflow:hidden; box-shadow:var(--shadow-2); min-height:760px;}
+  @media (max-width:900px){ .app{grid-template-columns:1fr;} .rail{display:none;} }
+
+  .rail{background:var(--rail-bg); color:var(--rail-ink); padding:16px 12px; display:flex; flex-direction:column; gap:2px;}
+  .rail-brand{display:flex; align-items:center; gap:8px; padding:6px 8px 16px;}
+  .rail-brand .mark{width:8px; height:20px; background:var(--brand); border-radius:1px;}
+  .rail-brand b{color:var(--rail-ink-strong); font-family:"IBM Plex Sans Condensed"; font-size:14px; font-weight:600;}
+  .rail-brand span{color:var(--rail-ink); font-size:11px; opacity:.7;}
+  .rail-switch{display:flex; align-items:center; justify-content:space-between; background:#161D25; border:1px solid var(--rail-line); border-radius:var(--r-sm); padding:8px 10px; margin-bottom:16px; font-size:12px;}
+  .rail-switch b{display:block; font-size:12px; color:var(--rail-ink-strong); font-weight:600;}
+  .rail-switch span{font-size:10.5px; color:var(--rail-ink); opacity:.65;}
+  .rail-grp{font-size:9.5px; text-transform:uppercase; letter-spacing:.07em; color:var(--rail-ink); opacity:.5; padding:12px 10px 4px;}
+  .rail-grp:first-of-type{padding-top:0;}
+  .rail-it{display:flex; align-items:center; gap:9px; padding:7px 10px; border-radius:var(--r-sm); font-size:13px; color:var(--rail-ink); text-decoration:none;}
+  .rail-it svg{width:16px; height:16px; stroke:currentColor; fill:none; stroke-width:1.75;}
+  .rail-it.on{background:var(--rail-accent-bg); color:var(--rail-accent-ink); font-weight:600;}
+  .rail-foot{margin-top:auto; padding:10px; font-size:10.5px; color:var(--rail-ink); opacity:.45;}
+
+  .content{background:var(--paper); display:flex; flex-direction:column; min-width:0;}
+  .topbar{display:flex; align-items:center; justify-content:space-between; padding:12px 22px; background:var(--surface); border-bottom:1px solid var(--border); gap:16px; flex-wrap:wrap;}
+  .crumb{display:flex; align-items:center; gap:8px; font-size:13.5px; font-weight:600;}
+  .crumb .car{color:var(--ink-faint); font-weight:400;}
+  .topbar-right{display:flex; align-items:center; gap:12px;}
+  .searchbox{display:flex; align-items:center; gap:6px; background:var(--surface-2); border:1px solid var(--border); border-radius:var(--r-sm); padding:6px 10px; font-size:12.5px; color:var(--ink-faint); width:180px;}
+  .avatar{width:30px; height:30px; border-radius:50%; background:var(--accent); color:#fff; display:flex; align-items:center; justify-content:center; font-size:11.5px; font-weight:600; font-family:"IBM Plex Mono"; flex:none;}
+  .avatar.sm{width:24px; height:24px; font-size:10px;}
+
+  .page{padding:22px; display:flex; flex-direction:column; gap:16px;}
+  .page-head{display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap;}
+  .page-head h1{font-size:22px;}
+  .page-head p{font-size:13px; color:var(--ink-faint); margin:3px 0 0;}
+  .unit-head{display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap;}
+  .unit-head h1{font-size:24px;}
+  .unit-head .sub{font-size:13px; color:var(--ink-faint); margin-top:2px;}
+
+  .chip{display:inline-flex; align-items:center; gap:5px; padding:3px 9px; border-radius:var(--r-pill); font-size:11.5px; font-weight:600; white-space:nowrap;}
+  .chip::before{content:""; width:6px; height:6px; flex:none;}
+  .chip.sq::before{border-radius:1px;}
+  .chip.ci::before{border-radius:50%;}
+
+  .panel{background:var(--surface); border:1px solid var(--border); border-radius:var(--r-md); padding:18px 20px;}
+  .panel h3{font-size:14px; margin-bottom:2px;}
+  .panel .phint{font-size:11.5px; color:var(--ink-faint); margin-bottom:12px;}
+  table{width:100%; border-collapse:collapse; font-size:12.8px;}
+  th{text-align:left; font-family:"IBM Plex Mono"; font-size:10px; text-transform:uppercase; letter-spacing:.03em; color:var(--ink-faint); padding:8px 10px; border-bottom:1px solid var(--border);}
+  td{padding:9px 10px; border-bottom:1px solid var(--border); vertical-align:middle; color:var(--ink-soft);}
+  tr:last-child td{border-bottom:none;}
+  tbody tr:hover{background:var(--surface-2);}
+  tbody tr.sel{background:var(--accent-soft);}
+  .pname{color:var(--ink); font-weight:600;}
+  .kebab{color:var(--ink-faint); font-size:15px; cursor:pointer;}
+
+  .tabs2{display:flex; gap:2px; border-bottom:1px solid var(--border);}
+  .tabs2 span{font-size:13px; padding:9px 6px; color:var(--ink-faint); border-bottom:2px solid transparent; cursor:pointer; margin-right:16px;}
+  .tabs2 span.on{color:var(--ink); border-color:var(--accent); font-weight:600;}
+
+  .btn-primary{background:var(--accent); color:#fff; font-weight:600; font-size:13px; padding:9px 15px; border-radius:var(--r-sm); border:none; cursor:pointer;}
+  .btn-secondary{background:transparent; border:1px solid var(--border); color:var(--ink); font-weight:600; font-size:13px; padding:9px 15px; border-radius:var(--r-sm); cursor:pointer;}
+  .btn-danger{background:var(--rk-crit-i); color:#fff; font-weight:600; font-size:13px; padding:9px 15px; border-radius:var(--r-sm); border:none; cursor:pointer;}
+  .filters{display:flex; gap:8px; flex-wrap:wrap;}
+  .fbtn{display:flex; align-items:center; gap:6px; font-size:12.5px; padding:7px 10px; border:1px solid var(--border); border-radius:var(--r-sm); background:var(--surface); color:var(--ink-soft);}
+
+  /* ---- incidents ---- */
+  .inc-layout{display:grid; grid-template-columns:1fr 340px; gap:16px; align-items:start;}
+  @media (max-width:1050px){ .inc-layout{grid-template-columns:1fr;} }
+  .sevdot{width:7px; height:7px; border-radius:50%; display:inline-block; margin-right:5px;}
+  .stepper{display:flex; align-items:center; margin:10px 0 4px;}
+  .step{display:flex; flex-direction:column; align-items:center; gap:6px; flex:1; position:relative;}
+  .step .c{width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:"IBM Plex Mono"; font-size:10px; background:var(--surface-2); color:var(--ink-faint); border:2px solid var(--border); z-index:1;}
+  .step.done .c{background:var(--st-op-i); color:#fff; border-color:var(--st-op-i);}
+  .step.now .c{background:var(--rk-high-i); color:#fff; border-color:var(--rk-high-i);}
+  .step .l{font-size:10.5px; color:var(--ink-faint); text-align:center;}
+  .step.now .l{color:var(--ink); font-weight:600;}
+  .step:not(:last-child)::after{content:""; position:absolute; top:11px; left:60%; width:80%; height:2px; background:var(--border);}
+  .step.done:not(:last-child)::after{background:var(--st-op-i);}
+  .kv{display:flex; justify-content:space-between; font-size:12.5px; padding:6px 0; border-top:1px solid var(--border);}
+  .kv:first-of-type{border-top:none;}
+  .kv .l{color:var(--ink-faint);}
+  .mini-gallery{display:grid; grid-template-columns:repeat(3,1fr); gap:6px; margin-top:4px;}
+  .mini-thumb{aspect-ratio:1; border-radius:var(--r-xs); background:linear-gradient(135deg,var(--surface-3),var(--surface-2));}
+  .mini-feed{display:flex; flex-direction:column; gap:9px; margin-top:6px;}
+  .mini-feed .who{font-size:12px; font-weight:600;}
+  .mini-feed .txt{font-size:12px; color:var(--ink-soft);}
+  .mini-feed .ts{font-size:10px; color:var(--ink-faint); font-family:"IBM Plex Mono";}
+
+  /* ---- evidence gallery ---- */
+  .gtoolbar2{display:flex; gap:8px; flex-wrap:wrap; align-items:center; justify-content:space-between;}
+  .ev-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(170px,1fr)); gap:12px;}
+  .ev-card{background:var(--surface); border:1px solid var(--border); border-radius:var(--r-md); overflow:hidden;}
+  .ev-thumb{height:110px; background:linear-gradient(135deg,var(--surface-3),var(--surface-2)); position:relative;}
+  .ev-thumb .tag{position:absolute; top:8px; left:8px;}
+  .ev-meta{padding:9px 11px; display:flex; flex-direction:column; gap:2px;}
+  .ev-meta .t{font-size:12.5px; font-weight:600;}
+  .ev-meta .m{font-size:10.5px; color:var(--ink-faint); font-family:"IBM Plex Mono";}
+  .ba-pair{display:grid; grid-template-columns:1fr 1fr; gap:2px; border-radius:var(--r-md); overflow:hidden; border:1px solid var(--border);}
+  .ba-pair .h{height:110px; position:relative;}
+  .ba-pair .h.before{background:linear-gradient(135deg,var(--surface-3),var(--surface-2));}
+  .ba-pair .h.after{background:linear-gradient(135deg,var(--accent-soft),var(--surface-2));}
+  .ba-pair .h span{position:absolute; bottom:6px; left:8px; font-family:"IBM Plex Mono"; font-size:9.5px; text-transform:uppercase; color:var(--ink-faint); background:var(--surface); padding:1px 6px; border-radius:2px;}
+
+  /* ---- timeline ---- */
+  .feed{display:flex; flex-direction:column; gap:14px;}
+  .feed-it{display:flex; gap:10px; align-items:flex-start;}
+  .feed-it .who{font-size:12.5px; font-weight:600; display:flex; align-items:center; gap:7px;}
+  .feed-it .txt{font-size:12.5px; color:var(--ink-soft); margin-top:1px;}
+  .feed-it .ts{font-size:10.5px; color:var(--ink-faint); margin-top:2px; font-family:"IBM Plex Mono";}
+  .sysdot{width:22px; height:22px; border-radius:50%; background:var(--surface-3); flex:none;}
+  .vis-badge{font-family:"IBM Plex Mono"; font-size:9px; text-transform:uppercase; letter-spacing:.04em; padding:1px 6px; border-radius:2px; background:var(--surface-2); color:var(--ink-faint);}
+  .vis-badge.internal{background:var(--rk-med-b); color:var(--rk-med-i);}
+  .vis-badge.mgmt{background:var(--accent-soft); color:var(--accent-ink);}
+
+  /* ---- audit ---- */
+  .audit-diff{display:flex; align-items:center; gap:6px; font-size:12px;}
+  .audit-diff .old{color:var(--rk-crit-i); text-decoration:line-through; opacity:.75;}
+  .audit-diff .new{color:var(--st-op-i); font-weight:600;}
+  .info-strip{font-size:12px; color:var(--ink-faint); background:var(--surface-2); border-radius:var(--r-sm); padding:10px 12px;}
+
+  /* ---- my tasks ---- */
+  .board{display:grid; grid-template-columns:repeat(4,1fr); gap:12px;}
+  @media (max-width:1000px){ .board{grid-template-columns:repeat(2,1fr);} }
+  .col-h{display:flex; align-items:center; justify-content:space-between; padding:0 2px 8px;}
+  .col-h b{font-size:12.5px; text-transform:uppercase; letter-spacing:.03em; color:var(--ink-soft);}
+  .col-h .n{font-family:"IBM Plex Mono"; font-size:11px; color:var(--ink-faint); background:var(--surface-2); border-radius:var(--r-pill); padding:1px 7px;}
+  .col-h.crit b{color:var(--rk-crit-i);}
+  .tcard{background:var(--surface); border:1px solid var(--border); border-left:3px solid var(--border); border-radius:var(--r-sm); padding:10px 12px; margin-bottom:8px;}
+  .tcard.crit{border-left-color:var(--rk-crit-i);}
+  .tcard.high{border-left-color:var(--rk-high-i);}
+  .tcard.med{border-left-color:var(--rk-med-i);}
+  .tcard .t{font-size:12.5px; font-weight:600; color:var(--ink);}
+  .tcard .m{font-size:11px; color:var(--ink-faint); margin-top:3px; display:flex; gap:6px; flex-wrap:wrap;}
+
+  /* ---- calendar ---- */
+  .cal-head{display:flex; align-items:center; justify-content:space-between;}
+  .cal-nav{display:flex; align-items:center; gap:10px;}
+  .cal-nav button{width:26px; height:26px; border-radius:var(--r-xs); border:1px solid var(--border); background:var(--surface); color:var(--ink-soft); cursor:pointer;}
+  .calgrid{display:grid; grid-template-columns:repeat(7,1fr); border-top:1px solid var(--border); border-left:1px solid var(--border);}
+  .caldow{font-family:"IBM Plex Mono"; font-size:10px; text-transform:uppercase; color:var(--ink-faint); text-align:center; padding:6px 0; border-right:1px solid var(--border); border-bottom:1px solid var(--border); background:var(--surface-2);}
+  .calcell{min-height:78px; border-right:1px solid var(--border); border-bottom:1px solid var(--border); padding:6px; display:flex; flex-direction:column; gap:3px;}
+  .calcell.out{background:var(--surface-2); opacity:.5;}
+  .calcell .d{font-family:"IBM Plex Mono"; font-size:11px; color:var(--ink-faint);}
+  .calcell.today .d{color:var(--accent-ink); font-weight:700;}
+  .calchip{font-size:9.5px; padding:1px 6px; border-radius:2px; font-weight:600;}
+  .cal-legend{display:flex; gap:16px; font-size:11.5px; color:var(--ink-faint); flex-wrap:wrap;}
+  .cal-legend span{display:flex; align-items:center; gap:5px;}
+  .cal-legend i{width:8px; height:8px; border-radius:2px; display:inline-block;}
+
+  .annot-box{max-width:900px; margin:34px auto 0; padding:16px 24px;}
+  .annot-box .in{background:var(--surface); border:1px solid var(--border); border-radius:var(--r-md); padding:16px 18px;}
+  .annot-box b{font-family:"IBM Plex Mono"; font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--accent-ink); display:block; margin-bottom:8px;}
+  .annot-box ul{margin:0; padding-left:18px; font-size:13px; color:var(--ink-soft);}
+  .annot-box li{margin-bottom:5px;}
+
+  footer{max-width:900px; margin:40px auto 60px; padding:20px 24px; border-top:1px solid var(--border); color:var(--ink-faint); font-size:13px;}
+  .nextbox{background:var(--surface); border:1px solid var(--border); border-radius:var(--r-md); padding:18px 20px; margin-top:14px;}
+  .nextbox h4{font-size:14.5px; color:var(--ink); margin-bottom:6px;}
+</style>
+
+<div class="docbar">
+  <div class="links">
+    <a href="https://claude.ai/code/artifact/17b68830-e5c5-4427-a560-8ffb2e2635ce">Blueprint</a>
+    <a href="https://claude.ai/code/artifact/15486825-b3e8-4c48-8ea6-4e7a3b7303b0">Wireframes</a>
+    <a href="https://claude.ai/code/artifact/25d273c5-252c-47ed-8f30-7b4c33641587">Design System</a>
+    <a href="https://claude.ai/code/artifact/12df175d-4670-41dc-9fb0-193d1c07c6fa">Control Tower · Unidades</a>
+    <a href="https://claude.ai/code/artifact/299a616a-f339-45de-ae9a-cd95c6c00c77">Detail · Gantt · Mapa</a>
+    <a href="https://claude.ai/code/artifact/e725c031-ded7-413f-bbc6-c35831a59789">Mobile</a>
+    <a href="https://claude.ai/code/artifact/c441ee62-1c53-4e33-98a6-3dc5a3aed1c2">Plantillas · Usuarios · Drive</a>
+    <span class="tt">→ estás aquí: Alta fidelidad, pantallas 10–15</span>
+  </div>
+  <div class="theme-toggle"><button data-t="light">Claro</button><button data-t="" class="on">Sistema</button><button data-t="dark">Oscuro</button></div>
+</div>
+
+<div class="doc-intro">
+  <div class="kicker">Fase 1 → Alta fidelidad · 4/N — última tanda</div>
+  <h1>Incidencias, evidencias y trabajo diario</h1>
+  <p>Cierra las 23 pantallas del MVP: el flujo completo de incidencias con su propia galería, las dos pestañas de unidad que faltaban (Evidencias, Timeline), Auditoría a nivel organización, y las dos vistas de trabajo del día a día — Mis tareas y Calendario. Mismos tokens, mismos componentes; nada nuevo que decidir a nivel visual.</p>
+</div>
+
+<!-- ============ SCREEN 10 — INCIDENCIAS ============ -->
+<div class="screen-label"><h2>Incidencias</h2><span>/proyectos/kioscos-2026/incidencias</span></div>
+<div class="appwrap">
+  <div class="app">
+    <nav class="rail">
+      <div class="rail-brand"><div class="mark"></div><div><b>SERCOM</b><br><span>Vodafone</span></div></div>
+      <div class="rail-switch"><div><b>Kioscos España</b><span>Rollout 2026</span></div><span>▾</span></div>
+      <div class="rail-grp">Proyecto</div>
+      <a class="rail-it"><svg viewBox="0 0 24 24"><rect x="3" y="12" width="4" height="8"/><rect x="10" y="7" width="4" height="13"/><rect x="17" y="3" width="4" height="17"/></svg>Control Tower</a>
+      <a class="rail-it"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="1"/><path d="M3 10h18"/></svg>Unidades</a>
+      <a class="rail-it"><svg viewBox="0 0 24 24"><path d="M4 6h10M4 12h16M4 18h7"/></svg>Gantt</a>
+      <a class="rail-it"><svg viewBox="0 0 24 24"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/></svg>Mapa</a>
+      <a class="rail-it"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="1"/><path d="M8 2v4M16 2v4M3 9h18"/></svg>Calendario</a>
+      <a class="rail-it on"><svg viewBox="0 0 24 24"><path d="M12 9v5M12 17h.01"/><path d="M10.3 3.9 2.6 18a1.6 1.6 0 0 0 1.4 2.4h16a1.6 1.6 0 0 0 1.4-2.4L13.7 3.9a1.6 1.6 0 0 0-2.8 0z"/></svg>Incidencias</a>
+      <a class="rail-it"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="1"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>Plantillas</a>
+      <a class="rail-it"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/></svg>Settings · Drive</a>
+      <div class="rail-grp">Personal</div>
+      <a class="rail-it"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>Mis tareas</a>
+      <div class="rail-foot">v1.0 · Kioscos España 2026</div>
+    </nav>
+    <div class="content">
+      <div class="topbar"><div class="crumb">Kioscos España <span class="car">/</span> Incidencias</div><div class="topbar-right"><div class="searchbox">Buscar incidencia…</div><div class="avatar">JR</div></div></div>
+      <div class="page">
+        <div class="page-head"><div><h1>Incidencias</h1><p>7 abiertas · 2 críticas amenazan fecha de instalación</p></div><button class="btn-primary">+ Nueva incidencia</button></div>
+        <div class="filters">
+          <div class="fbtn">Estado: Abiertas ▾</div>
+          <div class="fbtn">Severidad: Todas ▾</div>
+          <div class="fbtn">Categoría: Todas ▾</div>
+          <div class="fbtn">PDV: Todos ▾</div>
+        </div>
+
+        <div class="inc-layout">
+          <div class="panel" style="padding:0;">
+            <table>
+              <tr><th>ID</th><th>Categoría</th><th>PDV</th><th>Severidad</th><th>Estado</th><th>Responsable</th><th>Objetivo</th></tr>
+              <tr class="sel"><td class="mono">INC-0038</td><td>Hardware</td><td class="pname">Málaga Centro</td><td><span class="chip ci" style="background:var(--rk-high-b); color:var(--rk-high-i);">Alto</span></td><td><span class="chip sq" style="background:var(--st-install-b); color:var(--st-install-i);">In Progress</span></td><td>Pedro M.</td><td class="mono" style="color:var(--rk-crit-i); font-weight:600;">Hoy</td></tr>
+              <tr><td class="mono">INC-0041</td><td>Conectividad</td><td class="pname">Valencia Centro</td><td><span class="chip ci" style="background:var(--rk-crit-b); color:var(--rk-crit-i);">Crítico</span></td><td><span class="chip sq" style="background:var(--st-planned-b); color:var(--st-planned-i);">Open</span></td><td>Patricia G.</td><td class="mono" style="color:var(--rk-crit-i); font-weight:600;">Mañana</td></tr>
+              <tr><td class="mono">INC-0036</td><td>Material</td><td class="pname">Bilbao Centro</td><td><span class="chip ci" style="background:var(--rk-med-b); color:var(--rk-med-i);">Medio</span></td><td><span class="chip sq" style="background:var(--st-planned-b); color:var(--st-planned-i);">Open</span></td><td>Laura R.</td><td class="mono">30 AGO</td></tr>
+              <tr><td class="mono">INC-0033</td><td>Acceso</td><td class="pname">A Coruña</td><td><span class="chip ci" style="background:var(--rk-low-b); color:var(--rk-low-i);">Bajo</span></td><td><span class="chip sq" style="background:var(--st-install-b); color:var(--st-install-i);">In Progress</span></td><td>Iñigo A.</td><td class="mono">01 SEP</td></tr>
+              <tr><td class="mono">INC-0029</td><td>Instalador</td><td class="pname">Sevilla Nervión</td><td><span class="chip ci" style="background:var(--rk-med-b); color:var(--rk-med-i);">Medio</span></td><td><span class="chip sq" style="background:var(--st-op-b); color:var(--st-op-i);">Resolved</span></td><td>Laura R.</td><td class="mono">28 AGO</td></tr>
+            </table>
+          </div>
+
+          <div class="panel">
+            <div style="display:flex; justify-content:space-between; align-items:baseline;"><h3>INC-0038 · Problema cableado</h3><span class="chip ci" style="background:var(--rk-high-b); color:var(--rk-high-i);">Alto</span></div>
+            <div class="phint">Hardware · Málaga Centro</div>
+            <div class="stepper">
+              <div class="step done"><div class="c">✓</div><div class="l">Open</div></div>
+              <div class="step now"><div class="c">●</div><div class="l">In<br>Progress</div></div>
+              <div class="step"><div class="c">3</div><div class="l">Resolved</div></div>
+              <div class="step"><div class="c">4</div><div class="l">Closed</div></div>
+            </div>
+            <div class="kv"><span class="l">Tarea relacionada</span><span>Revisar cableado</span></div>
+            <div class="kv"><span class="l">Responsable</span><span>Pedro M.</span></div>
+            <div class="kv"><span class="l">Abierta</span><span class="mono">19 AGO · 09:48</span></div>
+            <div class="kv"><span class="l">Objetivo</span><span class="mono" style="color:var(--rk-crit-i); font-weight:600;">Hoy 19 AGO</span></div>
+            <p style="font-size:12.5px; color:var(--ink-soft); margin:10px 0 0;">Cableado posterior dañado durante el transporte. Se necesita repuesto — logística confirma envío urgente.</p>
+            <div style="font-family:'IBM Plex Mono'; font-size:10px; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-faint); margin-top:14px;">Evidencia (2)</div>
+            <div class="mini-gallery"><div class="mini-thumb"></div><div class="mini-thumb"></div></div>
+            <div style="font-family:'IBM Plex Mono'; font-size:10px; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-faint); margin-top:14px;">Comentarios</div>
+            <div class="mini-feed">
+              <div><div class="who">Pedro M.</div><div class="txt">Repuesto en camino, ETA mañana 10:00.</div><div class="ts">19 AGO · 12:10</div></div>
+            </div>
+            <div style="display:flex; gap:8px; margin-top:14px;"><button class="btn-secondary" style="flex:1;">Reasignar</button><button class="btn-primary" style="flex:1;">Marcar resuelta</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="annot-box"><div class="in"><b>Qué resuelve esta pantalla</b><ul>
+  <li>El stepper de incidencia usa el mismo patrón visual que el de gates en Work Unit Detail, pero en ámbar/rojo — refuerza que "incidencia" no es un segundo sistema de estados, es el mismo lenguaje aplicado a una excepción.</li>
+  <li>La columna Objetivo se pinta en rojo solo cuando vence hoy o ya venció — igual que "Venc." en la tabla de Unidades, para no introducir un tercer criterio de urgencia.</li>
+</ul></div></div>
+
+<!-- ============ SCREEN 11 — EVIDENCIAS ============ -->
+<div class="screen-label"><h2>Work Unit Detail · Evidencias</h2><span>/pdv/malaga-centro/evidencias</span></div>
+<div class="appwrap">
+  <div class="app">
+    <nav class="rail">
+      <div class="rail-brand"><div class="mark"></div><div><b>SERCOM</b><br><span>Vodafone</span></div></div>
+      <div class="rail-switch"><div><b>Kioscos España</b><span>Rollout 2026</span></div><span>▾</span></div>
+      <div class="rail-grp">Proyecto</div>
+      <a class="rail-it"><svg viewBox="0 0 24 24"><rect x="3" y="12" width="4" height="8"/><rect x="10" y="7" width="4" height="13"/><rect x="17" y="3" width="4" height="17"/></svg>Control Tower</a>
+      <a class="rail-it on"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="1"/><path d="M3 10h18"/></svg>Unidades</a>
+      <a class="rail-it"><svg viewBox="0 0 24 24"><path d="M4 6h10M4 12h16M4 18h7"/></svg>Gantt</a>
+      <a class="rail-it"><svg viewBox="0 0 24 24"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/></svg>Mapa</a>
+      <div class="rail-grp">Personal</div>
+      <a class="rail-it"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>Mis tareas</a>
+      <div class="rail-foot">v1.0 · Kioscos España 2026</div>
+    </nav>
+    <div class="content">
+      <div class="topbar"><div class="crumb">Kioscos España <span class="car">/</span> Málaga Centro</div><div class="topbar-right"><div class="avatar">JR</div></div></div>
+      <div class="page">
+        <div class="unit-head"><div><h1>Málaga Centro</h1><div class="sub">18 evidencias · 4 fases</div></div></div>
+        <div class="tabs2"><span>Resumen</span><span>Checklist</span><span>Timeline</span><span class="on">Evidencias</span><span>Incidencias</span><span>Comentarios</span><span>Auditoría</span></div>
+        <div class="gtoolbar2">
+          <div class="filters">
+            <div class="fbtn">Fase: Todas ▾</div>
+            <div class="fbtn">Tipo: Todos ▾</div>
+            <div class="fbtn">Incidencia ▾</div>
+          </div>
+          <button class="btn-secondary">+ Subir evidencia</button>
+        </div>
+
+        <div style="font-family:'IBM Plex Mono'; font-size:10px; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-faint);">Comparación · Estado inicial vs cableado resuelto</div>
+        <div class="ba-pair">
+          <div class="h before"><span>Antes · 19 AGO</span></div>
+          <div class="h after"><span>Después · 19 AGO</span></div>
+        </div>
+
+        <div style="font-family:'IBM Plex Mono'; font-size:10px; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-faint); margin-top:6px;">Todas las evidencias</div>
+        <div class="ev-grid">
+          <div class="ev-card"><div class="ev-thumb"><span class="chip sq tag" style="background:var(--st-planned-b); color:var(--st-planned-i); font-size:9.5px;">Pre-install</span></div><div class="ev-meta"><span class="t">Estado inicial</span><span class="m">Patricia G. · 20 AGO</span></div></div>
+          <div class="ev-card"><div class="ev-thumb"><span class="chip sq tag" style="background:var(--st-install-b); color:var(--st-install-i); font-size:9.5px;">Install</span></div><div class="ev-meta"><span class="t">Llegada instalador</span><span class="m">Pedro M. · 27 AGO</span></div></div>
+          <div class="ev-card"><div class="ev-thumb"><span class="chip sq tag" style="background:var(--st-install-b); color:var(--st-install-i); font-size:9.5px;">Install</span></div><div class="ev-meta"><span class="t">Cableado posterior</span><span class="m">Pedro M. · 27 AGO</span></div></div>
+          <div class="ev-card"><div class="ev-thumb"><span class="chip ci tag" style="background:var(--rk-high-b); color:var(--rk-high-i); font-size:9.5px;">INC-0038</span></div><div class="ev-meta"><span class="t">Daño en cableado</span><span class="m">Pedro M. · 19 AGO</span></div></div>
+          <div class="ev-card"><div class="ev-thumb"><span class="chip sq tag" style="background:var(--st-install-b); color:var(--st-install-i); font-size:9.5px;">Install</span></div><div class="ev-meta"><span class="t">Pantalla encendida</span><span class="m">Pedro M. · 27 AGO</span></div></div>
+          <div class="ev-card"><div class="ev-thumb"><span class="chip sq tag" style="background:var(--st-pending-b); color:var(--st-pending-i); font-size:9.5px;">Post-install</span></div><div class="ev-meta"><span class="t">Resultado final</span><span class="m">Pedro M. · 27 AGO</span></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ SCREEN 12 — TIMELINE ============ -->
+<div class="screen-label"><h2>Work Unit Detail · Timeline</h2><span>/pdv/malaga-centro/timeline</span></div>
+<div class="appwrap">
+  <div class="app">
+    <nav class="rail">
+      <div class="rail-brand"><div class="mark"></div><div><b>SERCOM</b><br><span>Vodafone</span></div></div>
+      <div class="rail-switch"><div><b>Kioscos España</b><span>Rollout 2026</span></div><span>▾</span></div>
+      <div class="rail-grp">Proyecto</div>
+      <a class="rail-it"><svg viewBox="0 0 24 24"><rect x="3" y="12" width="4" height="8"/><rect x="10" y="7" width="4" height="13"/><rect x="17" y="3" width="4" height="17"/></svg>Control Tower</a>
+      <a class="rail-it on"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="1"/></svg>Unidades</a>
+      <a class="rail-it"><svg viewBox="0 0 24 24"><path d="M4 6h10M4 12h16M4 18h7"/></svg>Gantt</a>
+      <div class="rail-grp">Personal</div>
+      <a class="rail-it"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>Mis tareas</a>
+      <div class="rail-foot">v1.0 · Kioscos España 2026</div>
+    </nav>
+    <div class="content">
+      <div class="topbar"><div class="crumb">Kioscos España <span class="car">/</span> Málaga Centro</div><div class="topbar-right"><div class="avatar">JR</div></div></div>
+      <div class="page">
+        <div class="unit-head"><div><h1>Málaga Centro</h1><div class="sub">Actividad completa · visibilidad respetada por rol</div></div></div>
+        <div class="tabs2"><span>Resumen</span><span>Checklist</span><span class="on">Timeline</span><span>Evidencias</span><span>Incidencias</span><span>Comentarios</span><span>Auditoría</span></div>
+        <div class="panel">
+          <div class="feed">
+            <div class="feed-it"><div class="avatar sm">PM</div><div><div class="who">Pedro M. <span class="vis-badge">Participants</span></div><div class="txt">Comentó: "Repuesto en camino, ETA mañana 10:00."</div><div class="ts">19 AGO · 12:10</div></div></div>
+            <div class="feed-it"><div class="sysdot"></div><div><div class="who">Sistema</div><div class="txt">Abrió incidencia INC-0038 · Problema cableado</div><div class="ts">19 AGO · 09:48</div></div></div>
+            <div class="feed-it"><div class="avatar sm">PM</div><div><div class="who">Pedro M. <span class="vis-badge">Participants</span></div><div class="txt">Subió evidencia: Cableado posterior</div><div class="ts">19 AGO · 09:31</div></div></div>
+            <div class="feed-it"><div class="avatar sm">JR</div><div><div class="who">Juan Rodríguez <span class="vis-badge internal">Internal</span></div><div class="txt">Revisar impacto contractual con el proveedor de transporte.</div><div class="ts">19 AGO · 09:15</div></div></div>
+            <div class="feed-it"><div class="avatar sm">LR</div><div><div class="who">Laura Ruiz <span class="vis-badge mgmt">Management</span></div><div class="txt">Escaló a Operations por posible retraso del hito global.</div><div class="ts">19 AGO · 09:10</div></div></div>
+            <div class="feed-it"><div class="sysdot"></div><div><div class="who">Sistema</div><div class="txt">Cambió riesgo Alto → Crítico</div><div class="ts">19 AGO · 09:05</div></div></div>
+            <div class="feed-it"><div class="sysdot"></div><div><div class="who">Sistema</div><div class="txt">Marcó "Confirmar recepción" como vencida</div><div class="ts">18 AGO · 00:01</div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="annot-box"><div class="in"><b>Qué resuelve esta pantalla</b><ul>
+  <li>Evidencias separa siempre "todas" de una comparación Antes/Después explícita — la comparación no sustituye a la galería completa (§16).</li>
+  <li>Timeline muestra la insignia de visibilidad en cada entrada, nunca oculta el evento — un usuario sin acceso a Internal/Management simplemente no ve esas filas, no ve una fila vacía o con candado (§19).</li>
+</ul></div></div>
+
+<!-- ============ SCREEN 13 — AUDITORÍA ============ -->
+<div class="screen-label"><h2>Auditoría</h2><span>/organizacion/auditoria · nivel Organización</span></div>
+<div class="appwrap">
+  <div class="app">
+    <nav class="rail">
+      <div class="rail-brand"><div class="mark"></div><div><b>SERCOM</b><br><span>Vodafone</span></div></div>
+      <div class="rail-grp">Organización</div>
+      <a class="rail-it"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="7" height="7"/><rect x="14" y="4" width="7" height="7"/><rect x="3" y="15" width="7" height="7"/><rect x="14" y="15" width="7" height="7"/></svg>Proyectos</a>
+      <a class="rail-it"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/></svg>Usuarios · Equipos</a>
+      <a class="rail-it on"><svg viewBox="0 0 24 24"><path d="M12 2 3 7v10l9 5 9-5V7z"/><path d="M3 7l9 5 9-5"/><path d="M12 12v10"/></svg>Auditoría</a>
+      <div class="rail-foot">Organización SERCOM</div>
+    </nav>
+    <div class="content">
+      <div class="topbar"><div class="crumb">Organización <span class="car">/</span> Auditoría</div><div class="topbar-right"><div class="avatar">JR</div></div></div>
+      <div class="page">
+        <div class="page-head"><div><h1>Auditoría</h1><p>Registro append-only — generado por servidor, nunca solo por el frontend.</p></div></div>
+        <div class="filters">
+          <div class="fbtn">Entidad: Todas ▾</div>
+          <div class="fbtn">Actor: Todos ▾</div>
+          <div class="fbtn">Proyecto: Kioscos España ▾</div>
+          <div class="fbtn">Rango: Últimos 7 días ▾</div>
+        </div>
+        <div class="panel" style="padding:0;">
+          <table>
+            <tr><th>Fecha / hora</th><th>Actor</th><th>Entidad</th><th>Acción</th><th>Cambio</th><th>Unidad</th></tr>
+            <tr><td class="mono">19 AGO 09:31</td><td>Juan Rodríguez</td><td>work_unit.risk</td><td>UPDATE</td><td><div class="audit-diff"><span class="old">Alto</span>→<span class="new">Crítico</span></div></td><td>Málaga Centro</td></tr>
+            <tr><td class="mono">19 AGO 09:48</td><td>Pedro M.</td><td>incident</td><td>CREATE</td><td>INC-0038 · Problema cableado</td><td>Málaga Centro</td></tr>
+            <tr><td class="mono">19 AGO 11:02</td><td>Sistema</td><td>attachment</td><td>UPLOAD_EVIDENCE</td><td>drive_file_id: 1kX9…f2</td><td>Barcelona Glòries</td></tr>
+            <tr><td class="mono">18 AGO 00:01</td><td>Sistema</td><td>task</td><td>UPDATE</td><td><div class="audit-diff"><span class="old">In Progress</span>→<span class="new">Overdue</span></div></td><td>Málaga Centro</td></tr>
+            <tr><td class="mono">17 AGO 16:20</td><td>Juan Rodríguez</td><td>project_template</td><td>MANAGE_TEMPLATE</td><td>Publicó Instalación Kiosco v2.0</td><td>—</td></tr>
+            <tr><td class="mono">17 AGO 10:04</td><td>Juan Rodríguez</td><td>work_unit_assignment</td><td>ASSIGN</td><td>Horacio García → 3 unidades</td><td>Madrid · 2 más</td></tr>
+          </table>
+        </div>
+        <div class="info-strip">Las funciones con privilegios elevados se ejecutan solo en servidor. Ningún registro de este listado puede editarse ni eliminarse desde el portal.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ SCREEN 14 — MIS TAREAS ============ -->
+<div class="screen-label"><h2>Mis tareas</h2><span>/mis-tareas · vista personal, Patricia Gómez</span></div>
+<div class="appwrap">
+  <div class="app">
+    <nav class="rail">
+      <div class="rail-brand"><div class="mark"></div><div><b>SERCOM</b><br><span>Vodafone</span></div></div>
+      <div class="rail-switch"><div><b>Kioscos España</b><span>Rollout 2026</span></div><span>▾</span></div>
+      <div class="rail-grp">Proyecto</div>
+      <a class="rail-it"><svg viewBox="0 0 24 24"><rect x="3" y="12" width="4" height="8"/><rect x="10" y="7" width="4" height="13"/><rect x="17" y="3" width="4" height="17"/></svg>Control Tower</a>
+      <a class="rail-it"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="1"/><path d="M3 10h18"/></svg>Unidades</a>
+      <a class="rail-it"><svg viewBox="0 0 24 24"><path d="M4 6h10M4 12h16M4 18h7"/></svg>Gantt</a>
+      <a class="rail-it"><svg viewBox="0 0 24 24"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/></svg>Mapa</a>
+      <a class="rail-it"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="1"/><path d="M8 2v4M16 2v4M3 9h18"/></svg>Calendario</a>
+      <a class="rail-it"><svg viewBox="0 0 24 24"><path d="M12 9v5M12 17h.01"/><path d="M10.3 3.9 2.6 18a1.6 1.6 0 0 0 1.4 2.4h16a1.6 1.6 0 0 0 1.4-2.4L13.7 3.9a1.6 1.6 0 0 0-2.8 0z"/></svg>Incidencias</a>
+      <div class="rail-grp">Personal</div>
+      <a class="rail-it on"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>Mis tareas</a>
+      <div class="rail-foot">v1.0 · Kioscos España 2026</div>
+    </nav>
+    <div class="content">
+      <div class="topbar"><div class="crumb">Mis tareas</div><div class="topbar-right"><div class="avatar">PG</div></div></div>
+      <div class="page">
+        <div class="page-head"><div><h1>Mis tareas</h1><p>14 tareas en 3 proyectos donde tienes acceso explícito</p></div></div>
+        <div class="board">
+          <div>
+            <div class="col-h crit"><b>Vencidas</b><span class="n">3</span></div>
+            <div class="tcard crit"><div class="t">Confirmar recepción del kiosco</div><div class="m"><span class="mono">Málaga Centro</span><span>·</span><span style="color:var(--rk-crit-i);">vencida 2d</span></div></div>
+            <div class="tcard crit"><div class="t">Confirmar instalador</div><div class="m"><span class="mono">Valencia Centro</span><span>·</span><span style="color:var(--rk-crit-i);">vencida 1d</span></div></div>
+            <div class="tcard high"><div class="t">Revisar cableado — INC-0038</div><div class="m"><span class="mono">Málaga Centro</span></div></div>
+          </div>
+          <div>
+            <div class="col-h"><b>Hoy</b><span class="n">4</span></div>
+            <div class="tcard med"><div class="t">Confirmar fecha con PDV</div><div class="m"><span class="mono">Bilbao Centro</span></div></div>
+            <div class="tcard"><div class="t">Revisar evidencias · Sevilla Nervión</div><div class="m"><span class="mono">Sevilla</span></div></div>
+            <div class="tcard"><div class="t">Asignar instalador</div><div class="m"><span class="mono">A Coruña</span></div></div>
+            <div class="tcard"><div class="t">Confirmar conectividad</div><div class="m"><span class="mono">Zaragoza</span></div></div>
+          </div>
+          <div>
+            <div class="col-h"><b>Bloqueadas</b><span class="n">2</span></div>
+            <div class="tcard high"><div class="t">Instalar equipo</div><div class="m">Depende de: Confirmar recepción</div></div>
+            <div class="tcard"><div class="t">Ejecutar prueba conectividad</div><div class="m">Depende de: Conectar red</div></div>
+          </div>
+          <div>
+            <div class="col-h"><b>Próximas</b><span class="n">5</span></div>
+            <div class="tcard"><div class="t">Confirmar mobiliario</div><div class="m"><span class="mono">28 AGO</span></div></div>
+            <div class="tcard"><div class="t">Confirmar envío</div><div class="m"><span class="mono">29 AGO</span></div></div>
+            <div class="tcard"><div class="t">Validación Operations</div><div class="m"><span class="mono">30 AGO</span></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="annot-box"><div class="in"><b>Qué resuelve esta pantalla</b><ul>
+  <li>Auditoría muestra el diff tachado→nuevo en línea, no dos columnas separadas — reduce el escaneo a un solo punto por fila.</li>
+  <li>Mis tareas usa las 4 secciones fijas del spec (§23) en vez de una lista con filtro — vencidas y bloqueadas quedan siempre visibles, no un clic detrás de un dropdown.</li>
+</ul></div></div>
+
+<!-- ============ SCREEN 15 — CALENDARIO ============ -->
+<div class="screen-label"><h2>Calendario</h2><span>/proyectos/kioscos-2026/calendario</span></div>
+<div class="appwrap">
+  <div class="app">
+    <nav class="rail">
+      <div class="rail-brand"><div class="mark"></div><div><b>SERCOM</b><br><span>Vodafone</span></div></div>
+      <div class="rail-switch"><div><b>Kioscos España</b><span>Rollout 2026</span></div><span>▾</span></div>
+      <div class="rail-grp">Proyecto</div>
+      <a class="rail-it"><svg viewBox="0 0 24 24"><rect x="3" y="12" width="4" height="8"/><rect x="10" y="7" width="4" height="13"/><rect x="17" y="3" width="4" height="17"/></svg>Control Tower</a>
+      <a class="rail-it"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="1"/></svg>Unidades</a>
+      <a class="rail-it"><svg viewBox="0 0 24 24"><path d="M4 6h10M4 12h16M4 18h7"/></svg>Gantt</a>
+      <a class="rail-it"><svg viewBox="0 0 24 24"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/></svg>Mapa</a>
+      <a class="rail-it on"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="1"/><path d="M8 2v4M16 2v4M3 9h18"/></svg>Calendario</a>
+      <div class="rail-grp">Personal</div>
+      <a class="rail-it"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>Mis tareas</a>
+      <div class="rail-foot">v1.0 · Kioscos España 2026</div>
+    </nav>
+    <div class="content">
+      <div class="topbar"><div class="crumb">Kioscos España <span class="car">/</span> Calendario</div><div class="topbar-right"><div class="avatar">JR</div></div></div>
+      <div class="page">
+        <div class="cal-head">
+          <div class="page-head" style="align-items:baseline;"><h1>Agosto 2026</h1><p>8 instalaciones previstas este mes</p></div>
+          <div class="cal-nav"><button>‹</button><button class="btn-secondary" style="padding:6px 12px; font-size:12px;">Hoy</button><button>›</button></div>
+        </div>
+        <div class="calgrid">
+          <div class="caldow">Lun</div><div class="caldow">Mar</div><div class="caldow">Mié</div><div class="caldow">Jue</div><div class="caldow">Vie</div><div class="caldow">Sáb</div><div class="caldow">Dom</div>
+          <div class="calcell out"><span class="d">27</span></div><div class="calcell out"><span class="d">28</span></div><div class="calcell out"><span class="d">29</span></div><div class="calcell out"><span class="d">30</span></div><div class="calcell out"><span class="d">31</span></div>
+          <div class="calcell"><span class="d">1</span></div><div class="calcell"><span class="d">2</span></div>
+          <div class="calcell"><span class="d">3</span></div><div class="calcell"><span class="d">4</span></div><div class="calcell"><span class="d">5</span></div><div class="calcell"><span class="d">6</span></div><div class="calcell"><span class="d">7</span></div><div class="calcell"><span class="d">8</span></div><div class="calcell"><span class="d">9</span></div>
+          <div class="calcell"><span class="d">10</span></div><div class="calcell"><span class="d">11</span></div><div class="calcell"><span class="d">12</span></div><div class="calcell"><span class="d">13</span></div><div class="calcell"><span class="d">14</span></div><div class="calcell"><span class="d">15</span></div><div class="calcell"><span class="d">16</span></div>
+          <div class="calcell"><span class="d">17</span></div><div class="calcell"><span class="d">18</span></div>
+          <div class="calcell today"><span class="d">19</span><span class="calchip" style="background:var(--rk-crit-b); color:var(--rk-crit-i);">Málaga · 09:00</span></div>
+          <div class="calcell"><span class="d">20</span></div><div class="calcell"><span class="d">21</span></div>
+          <div class="calcell"><span class="d">22</span><span class="calchip" style="background:var(--rk-med-b); color:var(--rk-med-i);">Bilbao · 10:00</span></div>
+          <div class="calcell"><span class="d">23</span></div>
+          <div class="calcell"><span class="d">24</span></div><div class="calcell"><span class="d">25</span><span class="calchip" style="background:var(--rk-med-b); color:var(--rk-med-i);">Bcn Glòries</span></div><div class="calcell"><span class="d">26</span><span class="calchip" style="background:var(--rk-high-b); color:var(--rk-high-i);">Valencia</span></div>
+          <div class="calcell"><span class="d">27</span><span class="calchip" style="background:var(--rk-crit-b); color:var(--rk-crit-i);">Málaga</span></div>
+          <div class="calcell"><span class="d">28</span><span class="calchip" style="background:var(--st-op-b); color:var(--st-op-i);">Sevilla</span></div>
+          <div class="calcell"><span class="d">29</span></div><div class="calcell"><span class="d">30</span><span class="calchip" style="background:var(--rk-med-b); color:var(--rk-med-i);">Bilbao</span></div>
+          <div class="calcell out"><span class="d">31</span></div><div class="calcell out"><span class="d">1</span></div><div class="calcell out"><span class="d">2</span></div><div class="calcell out"><span class="d">3</span></div><div class="calcell out"><span class="d">4</span></div><div class="calcell out"><span class="d">5</span></div><div class="calcell out"><span class="d">6</span></div>
+        </div>
+        <div class="cal-legend">
+          <span><i style="background:var(--rk-crit-b); border:1px solid var(--rk-crit-i);"></i>Riesgo crítico</span>
+          <span><i style="background:var(--rk-high-b); border:1px solid var(--rk-high-i);"></i>Riesgo alto</span>
+          <span><i style="background:var(--rk-med-b); border:1px solid var(--rk-med-i);"></i>Riesgo medio</span>
+          <span><i style="background:var(--st-op-b); border:1px solid var(--st-op-i);"></i>Confirmada / bajo riesgo</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="annot-box"><div class="in"><b>Qué resuelve esta pantalla</b><ul>
+  <li>El calendario colorea cada chip por riesgo, no por estado — la pregunta que responde esta vista es "¿qué instalación de esta semana puede fallar?", no "en qué fase está cada una" (para eso ya existe el Gantt).</li>
+  <li>Es deliberadamente una capa más ligera que el Gantt: sin baseline ni dependencias, solo fecha y riesgo — para escaneo rápido semana a semana.</li>
+</ul></div></div>
+
+<footer>
+  <div class="nextbox">
+    <h4>Fase 1 completa</h4>
+    <p style="margin:0; font-size:13.5px; color:var(--ink-soft);">Con esto quedan resueltas en alta fidelidad las 15 pantallas priorizadas del MVP (§25 y §35 del prompt maestro), sobre el Design System v1.0. Quedan fuera de esta fase, por ser aplicaciones directas de los mismos patrones sin decisiones nuevas: Login, Project List/Overview, Importación CSV/XLSX, Portfolio de proyectos y el resto de estados alternativos (vacío, error, permission denied) ya catalogados en el Design System §10. Siguiente paso natural: Developer Handoff — anotar comportamiento, validación y estados por componente para desarrollo.</p>
+  </div>
+  Gestor de Proyectos SERCOM · Vodafone — Alta fidelidad sobre Design System v1.0.
+</footer>
+
+<script>
+  (function(){
+    var root = document.documentElement;
+    var btns = document.querySelectorAll('.theme-toggle button');
+    btns.forEach(function(b){
+      b.addEventListener('click', function(){
+        var t = b.getAttribute('data-t');
+        if(t){ root.setAttribute('data-theme', t); } else { root.removeAttribute('data-theme'); }
+        btns.forEach(function(x){ x.classList.remove('on'); });
+        b.classList.add('on');
+      });
+    });
+  })();
+</script>

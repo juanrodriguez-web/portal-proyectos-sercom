@@ -1,0 +1,280 @@
+<title>Control Tower Mobile</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  :root{
+    --paper:#F3F5F4; --surface:#FFFFFF; --surface-2:#EAEEED; --surface-3:#DEE4E3;
+    --border:#D3DAD9; --ink:#10151B; --ink-soft:#3C4750; --ink-faint:#6C7780;
+    --accent:#0E7C86; --accent-strong:#0A5E66; --accent-soft:#DFF0F0; --accent-ink:#0A5E66;
+    --st-ready-i:#21578E; --st-ready-b:#D9E6F4;
+    --st-install-i:#0E7C86; --st-install-b:#DCEEEE;
+    --st-pending-i:#916012; --st-pending-b:#F3E7CE;
+    --st-op-i:#1E7A4C; --st-op-b:#DCEFE1;
+    --rk-low-i:#746D5C; --rk-low-b:#ECE8DE;
+    --rk-med-i:#916012; --rk-med-b:#F3E7CE;
+    --rk-high-i:#A6501F; --rk-high-b:#F5DDCB;
+    --rk-crit-i:#B23A22; --rk-crit-b:#F6DED8;
+    --shadow-2:0 2px 4px rgba(16,21,27,.06), 0 10px 24px -10px rgba(16,21,27,.18);
+    --shadow-3:0 8px 24px rgba(16,21,27,.16), 0 30px 60px -20px rgba(16,21,27,.28);
+    --r-xs:2px; --r-sm:4px; --r-md:8px; --r-pill:100px; --brand:#E60000;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --paper:#0B1014; --surface:#121820; --surface-2:#1A222B; --surface-3:#212B34;
+      --border:#2B3640; --ink:#EDF1F2; --ink-soft:#C3CCD1; --ink-faint:#8A97A1;
+      --accent:#4FD6D9; --accent-strong:#7FE6E8; --accent-soft:#123336; --accent-ink:#7FE6E8;
+      --st-ready-i:#7FB0E6; --st-ready-b:#122B47; --st-install-i:#4FD6D9; --st-install-b:#123336;
+      --st-pending-i:#E3B563; --st-pending-b:#2E260F; --st-op-i:#57CB8F; --st-op-b:#12291C;
+      --rk-low-i:#B7AF9C; --rk-low-b:#26241C; --rk-med-i:#E3B563; --rk-med-b:#2E260F;
+      --rk-high-i:#F0975E; --rk-high-b:#34220F; --rk-crit-i:#F1725A; --rk-crit-b:#341C16;
+      --shadow-2:0 2px 6px rgba(0,0,0,.4), 0 12px 26px -10px rgba(0,0,0,.6);
+      --shadow-3:0 10px 26px rgba(0,0,0,.55), 0 34px 64px -20px rgba(0,0,0,.7);
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#0B1014; --surface:#121820; --surface-2:#1A222B; --surface-3:#212B34;
+    --border:#2B3640; --ink:#EDF1F2; --ink-soft:#C3CCD1; --ink-faint:#8A97A1;
+    --accent:#4FD6D9; --accent-strong:#7FE6E8; --accent-soft:#123336; --accent-ink:#7FE6E8;
+    --st-ready-i:#7FB0E6; --st-ready-b:#122B47; --st-install-i:#4FD6D9; --st-install-b:#123336;
+    --st-pending-i:#E3B563; --st-pending-b:#2E260F; --st-op-i:#57CB8F; --st-op-b:#12291C;
+    --rk-low-i:#B7AF9C; --rk-low-b:#26241C; --rk-med-i:#E3B563; --rk-med-b:#2E260F;
+    --rk-high-i:#F0975E; --rk-high-b:#34220F; --rk-crit-i:#F1725A; --rk-crit-b:#341C16;
+    --shadow-2:0 2px 6px rgba(0,0,0,.4), 0 12px 26px -10px rgba(0,0,0,.6);
+    --shadow-3:0 10px 26px rgba(0,0,0,.55), 0 34px 64px -20px rgba(0,0,0,.7);
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--paper); color:var(--ink); font-family:"IBM Plex Sans",system-ui,sans-serif; font-size:14.5px; line-height:1.5; -webkit-font-smoothing:antialiased;}
+  h1,h2,h3,h4{font-family:"IBM Plex Sans Condensed",system-ui,sans-serif; font-weight:600; margin:0; color:var(--ink);}
+  .mono{font-family:"IBM Plex Mono",ui-monospace,monospace;}
+
+  .docbar{display:flex; align-items:center; justify-content:space-between; padding:12px 20px; background:var(--surface); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:20; flex-wrap:wrap; gap:10px;}
+  .docbar .links{display:flex; gap:14px; flex-wrap:wrap;}
+  .docbar a{color:var(--accent-ink); text-decoration:none; font-size:12.5px;}
+  .docbar .tt{font-size:11px; color:var(--ink-faint);}
+  .theme-toggle{display:flex; gap:2px; background:var(--surface-2); border:1px solid var(--border); border-radius:var(--r-sm); padding:2px;}
+  .theme-toggle button{font-family:"IBM Plex Mono"; font-size:10px; text-transform:uppercase; padding:5px 8px; border:none; background:transparent; color:var(--ink-faint); border-radius:2px; cursor:pointer;}
+  .theme-toggle button.on{background:var(--surface); color:var(--ink); box-shadow:var(--shadow-2);}
+  .doc-intro{max-width:900px; margin:0 auto; padding:34px 24px 10px;}
+  .doc-intro .kicker{font-family:"IBM Plex Mono"; font-size:11.5px; color:var(--accent-ink); text-transform:uppercase; letter-spacing:.1em; margin-bottom:10px;}
+  .doc-intro h1{font-size:28px; margin-bottom:8px; max-width:26ch;}
+  .doc-intro p{max-width:68ch; color:var(--ink-soft); font-size:15px;}
+
+  .strip{max-width:1360px; margin:30px auto 60px; padding:0 24px; display:flex; gap:24px; overflow-x:auto;}
+  .unit{flex:none; display:flex; flex-direction:column; align-items:center; gap:10px;}
+  .unit .lab{font-family:"IBM Plex Mono"; font-size:11px; color:var(--ink-faint); text-align:center; max-width:280px;}
+  .unit .lab b{color:var(--ink); display:block; font-family:"IBM Plex Sans"; font-size:12.5px; margin-bottom:2px;}
+
+  .device{width:280px; height:580px; background:var(--surface); border-radius:26px; box-shadow:var(--shadow-3); border:6px solid var(--ink); overflow:hidden; display:flex; flex-direction:column; position:relative;}
+  .status{height:24px; display:flex; align-items:center; justify-content:space-between; padding:0 16px; font-family:"IBM Plex Mono"; font-size:10px; color:var(--ink-faint); flex:none;}
+  .mtop{display:flex; align-items:center; gap:8px; padding:6px 14px 10px; flex:none; border-bottom:1px solid var(--border);}
+  .mtop .back{font-size:16px; color:var(--ink-faint);}
+  .mtop b{font-size:14px;}
+  .mtop .sub{font-size:10.5px; color:var(--ink-faint); display:block;}
+  .mbody{flex:1; overflow-y:auto; padding:14px; display:flex; flex-direction:column; gap:12px;}
+  .mcta{flex:none; padding:12px 14px calc(12px + env(safe-area-inset-bottom,0px)); border-top:1px solid var(--border); background:var(--surface);}
+  .mcta button{width:100%; padding:12px; border-radius:var(--r-sm); border:none; font-weight:600; font-size:13.5px;}
+  .cta-primary{background:var(--accent); color:#fff;}
+  .cta-blocked{background:var(--surface-3); color:var(--ink-faint);}
+  .cta-danger{background:var(--rk-crit-i); color:#fff;}
+  .tabbar{flex:none; display:flex; border-top:1px solid var(--border); background:var(--surface);}
+  .tabbar div{flex:1; text-align:center; padding:9px 0 12px; font-size:9.5px; color:var(--ink-faint);}
+  .tabbar div.on{color:var(--accent-ink); font-weight:600;}
+
+  .chip{display:inline-flex; align-items:center; gap:5px; padding:3px 9px; border-radius:var(--r-pill); font-size:10.5px; font-weight:600;}
+  .chip::before{content:""; width:6px; height:6px; flex:none;}
+  .chip.sq::before{border-radius:1px;}
+  .chip.ci::before{border-radius:50%;}
+
+  .pcard{background:var(--surface-2); border-radius:var(--r-md); padding:12px; display:flex; flex-direction:column; gap:6px;}
+  .pcard.hi{background:var(--accent-soft); border:1px solid var(--accent);}
+  .pcard b{font-size:13px;}
+  .pcard .m{font-size:11px; color:var(--ink-faint);}
+
+  .thumb{aspect-ratio:1; background:linear-gradient(135deg,var(--surface-3),var(--surface-2)); border-radius:var(--r-sm);}
+  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:8px;}
+
+  .taskrow{display:flex; align-items:flex-start; gap:8px; padding:9px 0; border-bottom:1px solid var(--border);}
+  .taskrow:last-child{border-bottom:none;}
+  .taskrow .box{width:16px; height:16px; border:1.5px solid var(--border); border-radius:3px; flex:none; margin-top:1px;}
+  .taskrow .t{font-size:12.5px; font-weight:600;}
+  .taskrow .m{font-size:10.5px; color:var(--ink-faint); display:flex; gap:6px; align-items:center; margin-top:2px;}
+  .fase-h{font-family:"IBM Plex Mono"; font-size:9.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-faint); padding-top:6px;}
+
+  .counter-bar{position:sticky; top:0; background:var(--surface); display:flex; justify-content:space-between; align-items:center; padding-bottom:8px; margin-bottom:2px;}
+  .state-note{font-size:11px; padding:6px 9px; border-radius:var(--r-sm);}
+  .state-note.err{background:var(--rk-crit-b); color:var(--rk-crit-i);}
+  .state-note.ok{background:var(--st-op-b); color:var(--st-op-i);}
+  .prog{height:6px; border-radius:100px; background:var(--surface-2); overflow:hidden;}
+  .prog>div{height:100%; background:var(--accent);}
+
+  .catpick{display:flex; flex-wrap:wrap; gap:6px;}
+  .catpick span{font-size:11px; padding:6px 10px; border-radius:var(--r-pill); border:1px solid var(--border); color:var(--ink-soft);}
+  .catpick span.on{background:var(--accent-soft); color:var(--accent-ink); border-color:var(--accent);}
+
+  .gatecheck{display:flex; justify-content:space-between; align-items:center; font-size:12.5px; padding:8px 0; border-bottom:1px solid var(--border);}
+  .gatecheck:last-of-type{border-bottom:none;}
+
+  .annot-box{max-width:900px; margin:10px auto 0; padding:0 24px 40px;}
+  .annot-box .in{background:var(--surface); border:1px solid var(--border); border-radius:var(--r-md); padding:16px 18px;}
+  .annot-box b{font-family:"IBM Plex Mono"; font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--accent-ink); display:block; margin-bottom:8px;}
+  .annot-box ul{margin:0; padding-left:18px; font-size:13px; color:var(--ink-soft);}
+  .annot-box li{margin-bottom:5px;}
+  footer{max-width:900px; margin:10px auto 60px; padding:20px 24px; border-top:1px solid var(--border); color:var(--ink-faint); font-size:13px;}
+  .nextbox{background:var(--surface); border:1px solid var(--border); border-radius:var(--r-md); padding:18px 20px; margin-top:14px;}
+  .nextbox h4{font-size:14.5px; color:var(--ink); margin-bottom:6px;}
+</style>
+
+<div class="docbar">
+  <div class="links">
+    <a href="https://claude.ai/code/artifact/17b68830-e5c5-4427-a560-8ffb2e2635ce">Blueprint</a>
+    <a href="https://claude.ai/code/artifact/15486825-b3e8-4c48-8ea6-4e7a3b7303b0">Wireframes</a>
+    <a href="https://claude.ai/code/artifact/25d273c5-252c-47ed-8f30-7b4c33641587">Design System</a>
+    <a href="https://claude.ai/code/artifact/299a616a-f339-45de-ae9a-cd95c6c00c77">Detail · Gantt · Mapa</a>
+    <span class="tt">→ estás aquí: Alta fidelidad, móvil instalador</span>
+  </div>
+  <div class="theme-toggle"><button data-t="light">Claro</button><button data-t="" class="on">Sistema</button><button data-t="dark">Oscuro</button></div>
+</div>
+
+<div class="doc-intro">
+  <div class="kicker">Fase 1 → Alta fidelidad · 3/N</div>
+  <h1>Flujo móvil del instalador</h1>
+  <p>~390px, de principio a fin, con el mismo sistema de color y tipografía que el resto de la plataforma. Un único CTA alcanzable con el pulgar por pantalla. El techo de este flujo es Pending Validation — nunca Operativo.</p>
+</div>
+
+<div class="strip">
+  <div class="unit">
+    <div class="device">
+      <div class="status"><span>9:41</span><span>●●●</span></div>
+      <div class="mtop"><b>Hola, Pedro</b><span class="sub">3 instalaciones asignadas</span></div>
+      <div class="mbody">
+        <div class="pcard hi"><b>Málaga Centro · HOY</b><div class="m">Calle Larios 12</div><span class="chip ci" style="background:var(--rk-crit-b); color:var(--rk-crit-i); align-self:flex-start;">Crítico</span></div>
+        <div class="pcard"><b>Bilbao Centro</b><div class="m">30 AGO · Not Ready</div></div>
+        <div class="pcard"><b>A Coruña</b><div class="m">01 SEP · En preparación</div></div>
+      </div>
+      <div class="tabbar"><div class="on">Instalaciones</div><div>Mis tareas</div><div>Perfil</div></div>
+    </div>
+    <div class="lab"><b>a · Mis instalaciones</b>Solo las unidades asignadas — el resto del rollout no existe para este usuario.</div>
+  </div>
+
+  <div class="unit">
+    <div class="device">
+      <div class="status"><span>9:41</span><span>●●●</span></div>
+      <div class="mtop"><span class="back">‹</span><div><b>Málaga Centro</b><span class="sub">PDV #KSK-024</span></div></div>
+      <div class="mbody">
+        <div class="thumb" style="aspect-ratio:16/8;"></div>
+        <div class="m" style="font-size:12px; color:var(--ink-soft);">Calle Larios 12 · Málaga</div>
+        <div class="prog"><div style="width:78%;"></div></div>
+        <div class="m" style="font-size:11px; color:var(--ink-faint);">11 / 14 tareas completadas</div>
+      </div>
+      <div class="mcta"><button class="cta-primary">Registrar llegada</button></div>
+    </div>
+    <div class="lab"><b>b · Instalación de hoy</b>Un único CTA de entrada al flujo del día.</div>
+  </div>
+
+  <div class="unit">
+    <div class="device">
+      <div class="status"><span>9:41</span><span>●●●</span></div>
+      <div class="mtop"><span class="back">‹</span><div><b>Checklist</b><span class="sub">11 / 14</span></div></div>
+      <div class="mbody">
+        <div class="fase-h">Pre-instalación</div>
+        <div class="taskrow"><div class="box" style="background:var(--st-op-i); border-color:var(--st-op-i);"></div><div><div class="t">Confirmar electricidad</div><div class="m">Tienda · 20 AGO</div></div></div>
+        <div class="taskrow"><div class="box"></div><div><div class="t">Confirmar recepción del kiosco</div><div class="m" style="color:var(--rk-crit-i);">Vencida</div></div></div>
+        <div class="fase-h">Instalación</div>
+        <div class="taskrow"><div class="box"></div><div><div class="t">Adjuntar fotografía final</div><div class="m"><span class="chip ci" style="background:var(--rk-med-b); color:var(--rk-med-i);">2/4</span></div></div></div>
+      </div>
+      <div class="mcta"><button class="cta-primary">Continuar</button></div>
+    </div>
+    <div class="lab"><b>c · Checklist</b>Icono de evidencia visible sin abrir la tarea.</div>
+  </div>
+
+  <div class="unit">
+    <div class="device">
+      <div class="status"><span>9:41</span><span>●●●</span></div>
+      <div class="mtop"><span class="back">‹</span><div><b>Adjuntar fotografía final</b></div></div>
+      <div class="mbody">
+        <div class="counter-bar"><span class="chip ci" style="background:var(--rk-med-b); color:var(--rk-med-i);">2 / 4 evidencias</span></div>
+        <div class="grid2">
+          <div class="thumb"></div><div class="thumb"></div>
+          <div class="thumb" style="display:flex; align-items:center; justify-content:center; border:1.5px dashed var(--border); background:transparent; color:var(--ink-faint); font-size:22px;">+</div>
+          <div class="thumb" style="display:flex; align-items:center; justify-content:center; border:1.5px dashed var(--border); background:transparent;"></div>
+        </div>
+        <div class="state-note err">Sin conexión · el archivo se conserva, reintentar cuando vuelva la señal</div>
+      </div>
+      <div class="mcta" style="display:flex; gap:8px; padding-top:12px;"><button class="cta-primary" style="flex:1;">Cámara</button><button class="cta-primary" style="flex:1; background:var(--surface-3); color:var(--ink);">Galería</button></div>
+    </div>
+    <div class="lab"><b>d · Captura de evidencia</b>Nunca se pinta "subida" antes de confirmar Drive + Supabase.</div>
+  </div>
+
+  <div class="unit">
+    <div class="device">
+      <div class="status"><span>9:41</span><span>●●●</span></div>
+      <div class="mtop"><span class="back">‹</span><div><b>Nueva incidencia</b></div></div>
+      <div class="mbody">
+        <div class="m" style="font-size:11px; color:var(--ink-faint); text-transform:uppercase; letter-spacing:.04em;">Categoría</div>
+        <div class="catpick"><span class="on">Electricidad</span><span>Material</span><span>Acceso</span><span>Hardware</span></div>
+        <div class="thumb" style="aspect-ratio:16/9; display:flex; align-items:center; justify-content:center; border:1.5px dashed var(--border); background:transparent; color:var(--ink-faint); font-size:11px;">+ Añadir foto</div>
+        <div style="background:var(--surface-2); border-radius:var(--r-sm); height:60px; padding:8px; font-size:11px; color:var(--ink-faint);">Descripción del problema…</div>
+      </div>
+      <div class="mcta"><button class="cta-primary">Crear incidencia</button></div>
+    </div>
+    <div class="lab"><b>e · Incidencia rápida</b>Sin salir del checklist de la instalación.</div>
+  </div>
+
+  <div class="unit">
+    <div class="device">
+      <div class="status"><span>9:41</span><span>●●●</span></div>
+      <div class="mtop"><span class="back">‹</span><div><b>Finalizar instalación</b></div></div>
+      <div class="mbody">
+        <div class="gatecheck"><span>Tareas obligatorias</span><span class="mono">13 / 14</span></div>
+        <div class="gatecheck"><span>Incidencias críticas abiertas</span><span class="mono">0</span></div>
+        <div class="state-note err">Faltan 2 evidencias obligatorias para completar esta tarea.</div>
+      </div>
+      <div class="mcta"><button class="cta-blocked" disabled>Enviar a validación</button></div>
+    </div>
+    <div class="lab"><b>f · Finalizar — bloqueado</b>El CTA no es clicable mientras falte evidencia obligatoria.</div>
+  </div>
+
+  <div class="unit">
+    <div class="device">
+      <div class="status"><span>9:41</span><span>●●●</span></div>
+      <div class="mtop"><span class="back">‹</span><div><b>Finalizar instalación</b></div></div>
+      <div class="mbody" style="align-items:center; text-align:center; justify-content:center;">
+        <div style="width:52px; height:52px; border-radius:50%; background:var(--st-pending-b); display:flex; align-items:center; justify-content:center; color:var(--st-pending-i); font-size:22px;">✓</div>
+        <b style="font-size:14px;">Enviado a validación</b>
+        <span class="chip sq" style="background:var(--st-pending-b); color:var(--st-pending-i);">Pending Validation</span>
+        <p style="font-size:11.5px; color:var(--ink-faint); max-width:200px;">Operations revisará el checklist y las evidencias antes de marcar el PDV como Operativo.</p>
+      </div>
+      <div class="mcta"><button class="cta-primary">Volver a mis instalaciones</button></div>
+    </div>
+    <div class="lab"><b>g · Confirmación</b>El instalador nunca ve un botón "Marcar Operativo".</div>
+  </div>
+</div>
+
+<div class="annot-box"><div class="in"><b>Qué hace que esto sea "mobile first" y no un recorte del desktop</b><ul>
+  <li>Cada pantalla tiene un único CTA primario, fijo en la franja inferior — nunca hay que elegir entre dos acciones igual de prominentes.</li>
+  <li>El estado de error de subida (d) conserva el archivo capturado y explica el problema en lenguaje de campo, no un código de error técnico.</li>
+  <li>El techo del flujo es Pending Validation (g) — Operative solo lo activa Operations desde el panel de validación, nunca desde aquí.</li>
+</ul></div></div>
+
+<footer>
+  <div class="nextbox">
+    <h4>Sigo con el resto</h4>
+    <p style="margin:0 0 8px; font-size:13.5px; color:var(--ink-soft);">Con esto quedan resueltas en alta fidelidad las 9 pantallas más críticas (Control Tower, Unidades, Work Unit Detail ×2, Gantt, Mapa y el flujo móvil completo). Siguiente: la capa de configuración — Editor de plantillas, Usuarios/Equipos/Accesos y Settings·Drive. Después: Incidencias, Evidencias/Timeline como pestañas propias, Auditoría, Mis tareas y Calendario.</p>
+    <p style="margin:0;"><a href="https://claude.ai/code/artifact/c441ee62-1c53-4e33-98a6-3dc5a3aed1c2" style="color:var(--accent-ink);">Ver Plantillas, Usuarios y Drive →</a></p>
+  </div>
+  Gestor de Proyectos SERCOM · Vodafone — Alta fidelidad sobre Design System v1.0.
+</footer>
+
+<script>
+  (function(){
+    var root = document.documentElement;
+    var btns = document.querySelectorAll('.theme-toggle button');
+    btns.forEach(function(b){
+      b.addEventListener('click', function(){
+        var t = b.getAttribute('data-t');
+        if(t){ root.setAttribute('data-theme', t); } else { root.removeAttribute('data-theme'); }
+        btns.forEach(function(x){ x.classList.remove('on'); });
+        b.classList.add('on');
+      });
+    });
+  })();
+</script>

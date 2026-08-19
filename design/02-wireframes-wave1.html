@@ -1,0 +1,687 @@
+<title>Control Tower Wireframes</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  :root{
+    --paper:#F4F4F1; --surface:#FFFFFF; --muted:#EDEDE8; --muted-2:#E2E2DB;
+    --line:#CBCBC3; --line-strong:#9C9C92; --ink:#232320; --ink-soft:#6B6B62; --ink-faint:#9A9A90;
+    --annot:#C8461F; --annot-soft:#FBE7DE;
+    --status-ink:#2A4C63; --status-bg:#E4ECF1;
+    --risk-ink:#6B4A17; --risk-bg:#F1E8D8;
+    --new-bg:#E6EFE8; --new-ink:#2E6B47;
+    --shadow:0 1px 2px rgba(35,35,32,.05), 0 10px 26px -14px rgba(35,35,32,.22);
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--paper); color:var(--ink); font-family:"IBM Plex Sans",system-ui,sans-serif; font-size:15.5px; line-height:1.6; -webkit-font-smoothing:antialiased;}
+  h1,h2,h3,h4{font-family:"IBM Plex Sans Condensed",system-ui,sans-serif; font-weight:600; text-wrap:balance; color:var(--ink); margin:0;}
+  code,.mono{font-family:"IBM Plex Mono",ui-monospace,monospace;}
+
+  .shell{display:grid; grid-template-columns:250px minmax(0,1fr); min-height:100vh;}
+  @media (max-width:900px){ .shell{grid-template-columns:1fr;} .toc{display:none;} }
+  .toc{position:sticky; top:0; height:100vh; overflow-y:auto; background:var(--surface); border-right:1px solid var(--line); padding:26px 16px 40px;}
+  .toc-brand{font-family:"IBM Plex Sans Condensed"; font-weight:700; font-size:12px; letter-spacing:.09em; text-transform:uppercase; color:var(--ink-faint); margin-bottom:2px;}
+  .toc-title{font-size:18px; font-weight:600; margin-bottom:6px; line-height:1.25;}
+  .toc-back{display:inline-block; font-size:12px; color:var(--annot); margin-bottom:20px; text-decoration:none;}
+  .toc nav{display:flex; flex-direction:column; gap:1px;}
+  .toc a{display:block; text-decoration:none; color:var(--ink-soft); font-size:13px; padding:5px 9px; border-radius:2px;}
+  .toc a:hover{background:var(--muted); color:var(--ink);}
+  .toc .grp{margin-top:16px; font-size:10px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-faint); padding:0 9px 5px;}
+  .toc .grp:first-child{margin-top:0;}
+
+  main{min-width:0;}
+  .hero{padding:52px 44px 36px; border-bottom:1px solid var(--line);}
+  @media (max-width:640px){ .hero{padding:34px 20px 26px;} }
+  .kicker{font-family:"IBM Plex Mono"; font-size:12px; color:var(--annot); text-transform:uppercase; letter-spacing:.1em; margin-bottom:12px; display:flex; gap:9px; align-items:center;}
+  .kicker::before{content:"◆"; font-size:9px;}
+  .hero h1{font-size:clamp(26px,3.6vw,36px); max-width:20ch; margin-bottom:12px;}
+  .hero p.lede{max-width:66ch; color:var(--ink-soft); font-size:16px; margin-bottom:16px;}
+  .assume{max-width:66ch; background:var(--muted); border:1px solid var(--line); border-radius:3px; padding:12px 16px; font-size:13.5px; color:var(--ink-soft);}
+  .assume b{color:var(--ink); font-family:"IBM Plex Mono"; font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; display:block; margin-bottom:4px;}
+
+  section{padding:44px 44px; border-bottom:1px solid var(--line); scroll-margin-top:14px;}
+  @media (max-width:640px){ section{padding:30px 18px;} }
+  .section-head{display:flex; align-items:baseline; gap:12px; margin-bottom:4px;}
+  .section-num{font-family:"IBM Plex Mono"; color:var(--annot); font-size:13px;}
+  section h2{font-size:22px;}
+  .section-intro{max-width:70ch; color:var(--ink-soft); margin:8px 0 26px; font-size:14.5px;}
+
+  .screen{margin-bottom:46px;}
+  .screen:last-child{margin-bottom:0;}
+  .screen-head{display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; margin-bottom:12px;}
+  .screen-head h3{font-size:16.5px;}
+  .tag{font-family:"IBM Plex Mono"; font-size:10px; text-transform:uppercase; letter-spacing:.05em; padding:2px 7px; border-radius:100px; white-space:nowrap;}
+  .tag.new{background:var(--new-bg); color:var(--new-ink);}
+  .tag.fix{background:var(--annot-soft); color:var(--annot);}
+  .role-tag{font-family:"IBM Plex Mono"; font-size:11px; color:var(--ink-faint);}
+
+  /* ---- window frame ---- */
+  .win{background:var(--surface); border:1px solid var(--line-strong); border-radius:5px; box-shadow:var(--shadow); overflow:hidden;}
+  .win-bar{display:flex; align-items:center; gap:8px; padding:8px 12px; border-bottom:1px solid var(--line); background:var(--muted);}
+  .win-bar .dots{display:flex; gap:4px;}
+  .win-bar .dots span{width:7px; height:7px; border-radius:50%; background:var(--line-strong); display:block;}
+  .win-bar .path{font-family:"IBM Plex Mono"; font-size:11px; color:var(--ink-faint); margin-left:4px;}
+
+  /* ---- wireframe primitives ---- */
+  .box{background:var(--muted); border:1px dashed var(--line-strong); border-radius:2px;}
+  .box.solid{border-style:solid; background:var(--muted-2);}
+  .box.deep{background:var(--surface); border-color:var(--line);}
+  .ph{font-family:"IBM Plex Mono"; font-size:11px; color:var(--ink-faint); display:block;}
+  .ph.dark{color:var(--ink-soft);}
+  .row{display:flex; gap:10px;}
+  .col{display:flex; flex-direction:column; gap:10px;}
+  .wrap{flex-wrap:wrap;}
+  .grow{flex:1; min-width:0;}
+
+  .btn{font-family:"IBM Plex Mono"; font-size:11px; padding:6px 12px; border-radius:2px; text-align:center; white-space:nowrap;}
+  .btn-p{background:var(--ink); color:var(--surface);}
+  .btn-s{background:transparent; border:1px solid var(--line-strong); color:var(--ink-soft);}
+  .btn-ghost{background:transparent; border:1px dashed var(--line); color:var(--ink-faint);}
+  .btn-block{background:var(--muted-2); border:1px solid var(--line);}
+
+  .navmini{width:150px; flex:none; background:var(--muted); border-right:1px solid var(--line); padding:10px 8px; display:flex; flex-direction:column; gap:3px;}
+  .navmini .it{font-family:"IBM Plex Mono"; font-size:10.5px; color:var(--ink-faint); padding:6px 8px; border-radius:2px; display:flex; align-items:center; gap:6px;}
+  .navmini .it .sq{width:8px; height:8px; background:var(--line-strong); flex:none;}
+  .navmini .it.on{background:var(--muted-2); color:var(--ink); font-weight:600;}
+  .navmini .it.on .sq{background:var(--annot);}
+  .navmini .grp{font-size:9px; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-faint); margin:8px 0 2px 8px;}
+  .navmini .grp:first-child{margin-top:0;}
+
+  .topmini{display:flex; align-items:center; justify-content:space-between; padding:9px 14px; border-bottom:1px solid var(--line); background:var(--surface);}
+  .topmini .left{display:flex; align-items:center; gap:10px;}
+  .topmini .crumb{font-family:"IBM Plex Mono"; font-size:11px; color:var(--ink-faint);}
+  .topmini .right{display:flex; align-items:center; gap:8px;}
+  .topmini .avatar{width:22px; height:22px; border-radius:50%; background:var(--line-strong);}
+  .topmini .icon{width:18px; height:18px; border:1px solid var(--line-strong); border-radius:3px;}
+
+  .canvas{padding:16px; display:flex; flex-direction:column; gap:14px;}
+
+  /* ---- status / risk swatches, kept distinct in shape even at wireframe level ---- */
+  .badge-status, .badge-risk{display:inline-flex; align-items:center; gap:6px; font-family:"IBM Plex Mono"; font-size:10.5px; padding:2px 8px; border-radius:2px; white-space:nowrap;}
+  .badge-status{background:var(--status-bg); color:var(--status-ink);}
+  .badge-status::before{content:""; width:8px; height:8px; background:var(--status-ink); flex:none;}
+  .badge-risk{background:var(--risk-bg); color:var(--risk-ink);}
+  .badge-risk::before{content:""; width:8px; height:8px; border-radius:50%; background:var(--risk-ink); flex:none;}
+
+  .tbl{width:100%; border-collapse:collapse; font-size:12px;}
+  .tbl th{text-align:left; font-family:"IBM Plex Mono"; font-size:9.5px; text-transform:uppercase; letter-spacing:.04em; color:var(--ink-faint); padding:6px 10px; border-bottom:1px solid var(--line-strong); white-space:nowrap;}
+  .tbl td{padding:8px 10px; border-bottom:1px solid var(--line); vertical-align:middle;}
+  .tbl .barline{height:7px; background:var(--line); border-radius:2px; display:block;}
+
+  .kpi{background:var(--surface); border:1px solid var(--line); border-radius:3px; padding:12px 14px; flex:1; min-width:110px;}
+  .kpi .n{font-family:"IBM Plex Mono"; font-size:22px; font-weight:600; color:var(--ink);}
+  .kpi .l{font-size:10.5px; color:var(--ink-faint); text-transform:uppercase; letter-spacing:.03em;}
+
+  .annot-dot{display:inline-flex; align-items:center; justify-content:center; width:17px; height:17px; border-radius:50%; background:var(--annot); color:#fff; font-family:"IBM Plex Mono"; font-size:10px; font-weight:600; flex:none;}
+
+  .ann-list{list-style:none; padding:0; margin:12px 0 0; max-width:78ch; display:flex; flex-direction:column; gap:8px;}
+  .ann-list li{display:flex; gap:10px; font-size:13.3px; color:var(--ink-soft); align-items:flex-start;}
+  .ann-list b{color:var(--ink);}
+
+  /* ---- phone frame ---- */
+  .strip{display:flex; gap:18px; overflow-x:auto; padding:4px 4px 14px;}
+  .phone{width:238px; flex:none; background:var(--surface); border:5px solid var(--line-strong); border-radius:20px; box-shadow:var(--shadow); overflow:hidden;}
+  .phone-notch{height:16px; background:var(--muted); display:flex; align-items:center; justify-content:center;}
+  .phone-notch::before{content:""; width:36px; height:4px; background:var(--line-strong); border-radius:4px;}
+  .phone-canvas{padding:10px; display:flex; flex-direction:column; gap:8px; min-height:380px;}
+  .phone-label{font-family:"IBM Plex Mono"; font-size:10px; text-align:center; color:var(--ink-faint); padding:6px 0 0;}
+  .phone-cta{background:var(--ink); color:#fff; text-align:center; font-family:"IBM Plex Mono"; font-size:10.5px; padding:9px; border-radius:3px; margin-top:auto;}
+  .phone-cta.blocked{background:var(--muted-2); color:var(--ink-faint);}
+
+  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+  .grid3{display:grid; grid-template-columns:repeat(3,1fr); gap:12px;}
+  @media (max-width:720px){ .grid2,.grid3{grid-template-columns:1fr;} }
+
+  .states-strip{display:flex; gap:14px; overflow-x:auto; padding-bottom:10px;}
+  .state-card{flex:none; width:168px; background:var(--surface); border:1px solid var(--line); border-radius:4px; padding:10px;}
+  .state-card .st-label{font-family:"IBM Plex Mono"; font-size:9.5px; text-transform:uppercase; letter-spacing:.04em; color:var(--annot); margin-bottom:8px; display:block;}
+
+  footer{padding:36px 44px 64px; color:var(--ink-faint); font-size:12.5px;}
+  .end-cta{max-width:70ch; background:var(--surface); border:1px solid var(--line); border-radius:3px; padding:18px 20px;}
+  .end-cta h4{font-size:15px; margin-bottom:8px;}
+  ::selection{background:var(--annot-soft); color:var(--annot);}
+  :focus-visible{outline:2px solid var(--annot); outline-offset:2px;}
+</style>
+
+<div class="shell">
+  <aside class="toc">
+    <a class="toc-back" href="https://claude.ai/code/artifact/17b68830-e5c5-4427-a560-8ffb2e2635ce">← Fase 1 · Blueprint</a>
+    <div class="toc-brand">SERCOM · Vodafone</div>
+    <div class="toc-title">Control Tower<br>Wireframes</div>
+    <nav>
+      <a href="#intro">Alcance de esta ola</a>
+      <div class="grp">Organización</div>
+      <a href="#s1">01 Portfolio</a>
+      <a href="#s2">02 Usuarios · Equipos</a>
+      <a href="#s3">03 Permission Matrix</a>
+      <a href="#s4">04 Auditoría global</a>
+      <div class="grp">Proyecto</div>
+      <a href="#s5">05 Settings · Drive</a>
+      <a href="#s6">06 Plantillas</a>
+      <a href="#s7">07 Template Editor</a>
+      <a href="#s8">08 Evidence Requirement</a>
+      <a href="#s9">09 Importar PDV</a>
+      <div class="grp">Work Unit</div>
+      <a href="#s10">10 Evidence Gallery</a>
+      <a href="#s11">11 Estados de subida</a>
+      <a href="#s12">12 Incidencias</a>
+      <a href="#s13">13 Comentarios</a>
+      <a href="#s14">14 Timeline</a>
+      <div class="grp">Personal</div>
+      <a href="#s15">15 Mis tareas</a>
+      <a href="#s16">16 Calendario</a>
+      <div class="grp">Móvil · Installer</div>
+      <a href="#s17">17 Flujo de instalación</a>
+      <div class="grp">Transversal</div>
+      <a href="#s18">18 Denegado · vacío · error</a>
+      <div class="grp">Cierre</div>
+      <a href="#next">Próxima ola</a>
+    </nav>
+  </aside>
+
+  <main>
+    <div class="hero" id="intro">
+      <div class="kicker">Fase 1 → Wireframes · Ola 1 de 2</div>
+      <h1>Las 18 pantallas sin referencia previa</h1>
+      <p class="lede">Fidelidad de wireframe deliberada: gris, sin color de marca, sin tipografía final — la estructura y la lógica de cada pantalla, no su acabado. Empieza por lo que el audit de Fase 1 marcó como hueco total (Drive, evidencias, plantillas, permisos, móvil) antes de tocar lo que ya tenía un punto de partida en los mockups.</p>
+      <div class="assume">
+        <b>Hipótesis con las que se avanza</b>
+        Calendario como vista propia (no Gantt alternativo) · Dashboard por proyecto con Portfolio como capa superior para multi-proyecto · resiliencia ante conectividad degradada, no offline completo · Viewer comparte layout con Coordinator en modo lectura. Se revisan al cerrar esta ola de wireframes.
+      </div>
+    </div>
+
+    <!-- ============ ORG ============ -->
+    <section id="s1">
+      <div class="section-head"><span class="section-num">Org</span><h2>Organización y gobierno</h2></div>
+      <p class="section-intro">Cuatro pantallas que no existían en ningún mockup: son las que hacen cumplir "cero acceso por defecto" y dan trazabilidad a nivel organización.</p>
+
+      <div class="screen">
+        <div class="screen-head"><h3>01 · Portfolio</h3><span class="tag new">Pantalla nueva · F5</span><span class="role-tag">Admin · Coordinator · Operations · Viewer</span></div>
+        <div class="win">
+          <div class="win-bar"><div class="dots"><span></span><span></span><span></span></div><span class="path">app.sercom.io / portfolio</span></div>
+          <div class="topmini">
+            <div class="left"><span class="box solid" style="width:70px;height:16px;"></span><span class="ph">SERCOM</span></div>
+            <div class="right"><span class="icon"></span><span class="icon"></span><span class="topmini avatar"></span></div>
+          </div>
+          <div class="canvas">
+            <div class="row wrap">
+              <div class="col grow box deep" style="padding:14px; min-width:220px;">
+                <span class="ph dark">Kioscos España · Rollout 2026</span>
+                <div class="row wrap" style="align-items:center;">
+                  <span class="box" style="width:46px;height:46px;border-radius:50%;"></span>
+                  <div class="col" style="gap:4px;"><span class="ph">12 / 40 operativos</span><span class="badge-risk">4 en riesgo alto/crítico</span></div>
+                </div>
+                <span class="ph">Deadline 19 OCT 2026 · 61 días</span>
+                <span class="btn btn-s" style="align-self:flex-start;">Abrir Control Tower</span>
+              </div>
+              <div class="col box btn-ghost" style="min-width:180px; align-items:center; justify-content:center; padding:20px;"><span class="ph">+ Nuevo proyecto</span></div>
+            </div>
+          </div>
+        </div>
+        <ol class="ann-list">
+          <li><span class="annot-dot">1</span>La card solo existe si hay <code>project_members</code> para el usuario — cero proyectos visibles para un alta nueva.</li>
+          <li><span class="annot-dot">2</span>El anillo resume Operativos/Objetivo; el detalle completo vive un clic más adentro, en el Control Tower.</li>
+          <li><span class="annot-dot">3</span>"+ Nuevo proyecto" desaparece para roles sin permiso de creación a nivel organización.</li>
+        </ol>
+      </div>
+
+      <div class="screen" id="s2">
+        <div class="screen-head"><h3>02 · Usuarios · Equipos</h3><span class="tag new">Pantalla nueva</span><span class="role-tag">Admin</span></div>
+        <div class="win">
+          <div class="win-bar"><div class="dots"><span></span><span></span><span></span></div><span class="path">/org/usuarios</span></div>
+          <div class="row" style="align-items:stretch;">
+            <div class="navmini">
+              <div class="grp">Organización</div>
+              <div class="it"><span class="sq"></span>Portfolio</div>
+              <div class="it on"><span class="sq"></span>Usuarios</div>
+              <div class="it"><span class="sq"></span>Auditoría</div>
+            </div>
+            <div class="canvas grow">
+              <div class="row wrap" style="justify-content:space-between; align-items:center;">
+                <div class="row"><span class="box solid btn" style="padding:6px 10px;"><span class="ph">Usuarios</span></span><span class="box btn-ghost" style="padding:6px 10px;"><span class="ph">Equipos</span></span></div>
+                <span class="btn btn-p">+ Invitar usuario</span>
+              </div>
+              <table class="tbl">
+                <tr><th>Nombre</th><th>Email</th><th>Rol global</th><th>Proyectos</th><th>Estado</th></tr>
+                <tr><td><span class="ph dark">Horacio García</span></td><td><span class="ph">horacio@proveedor.com</span></td><td><span class="ph">Installer</span></td><td><span class="badge-status">1 proyecto</span></td><td><span class="ph">Activo</span></td></tr>
+                <tr><td><span class="ph dark">Patricia Gómez</span></td><td><span class="ph">patricia@empresa.com</span></td><td><span class="ph">Coordinator</span></td><td><span class="badge-status">1 proyecto</span></td><td><span class="ph">Activo</span></td></tr>
+                <tr><td><span class="ph dark">Nuevo · invitado</span></td><td><span class="ph">ana@empresa.com</span></td><td><span class="ph">Viewer</span></td><td><span class="badge-status">0 proyectos</span></td><td><span class="ph">Invitado</span></td></tr>
+              </table>
+            </div>
+          </div>
+        </div>
+        <ol class="ann-list">
+          <li><span class="annot-dot">1</span>Un alta nueva muestra "0 proyectos" — el acceso es un paso explícito posterior, nunca implícito al crear el usuario.</li>
+          <li><span class="annot-dot">2</span>"Proyectos" es un chip-contador, nunca la lista completa — evita insinuar el resto del catálogo de proyectos.</li>
+          <li><span class="annot-dot">3</span>Clic en fila abre el Permission Matrix / User Access Detail (pantalla 03) para ese usuario.</li>
+        </ol>
+      </div>
+
+      <div class="screen" id="s3">
+        <div class="screen-head"><h3>03 · Permission Matrix / User Access Detail</h3><span class="tag new">Pantalla nueva</span><span class="role-tag">Admin</span></div>
+        <div class="win">
+          <div class="win-bar"><div class="dots"><span></span><span></span><span></span></div><span class="path">/org/usuarios/horacio-garcia</span></div>
+          <div class="canvas">
+            <div class="row box deep" style="padding:12px; align-items:center;">
+              <span class="box" style="width:34px;height:34px;border-radius:50%;"></span>
+              <div class="col" style="gap:2px;"><span class="ph dark">Horacio García</span><span class="ph">horacio@proveedor.com · Installer</span></div>
+            </div>
+            <span class="ph dark">Proyectos</span>
+            <table class="tbl">
+              <tr><th>Proyecto</th><th>Rol en proyecto</th><th>Alcance</th><th></th></tr>
+              <tr><td><span class="ph dark">Kioscos España · Rollout 2026</span></td><td><span class="ph">Installer</span></td><td><span class="badge-status">2 unidades — no todas</span></td><td><span class="btn btn-s">Revocar</span></td></tr>
+            </table>
+            <span class="ph dark">Unidades de trabajo visibles</span>
+            <div class="row wrap"><span class="badge-status">Madrid · Sol</span><span class="badge-status">Conde de Peñalver</span></div>
+            <span class="ph dark">Permisos de acción efectivos (calculados, no editables aquí)</span>
+            <div class="row wrap">
+              <span class="badge-status">READ ✓</span><span class="badge-status">COMPLETE_TASK ✓</span><span class="badge-status">UPLOAD_EVIDENCE ✓</span><span class="badge-status">CREATE_INCIDENT ✓</span>
+              <span class="box" style="padding:2px 8px;"><span class="ph">VALIDATE ✕</span></span><span class="box" style="padding:2px 8px;"><span class="ph">MANAGE_TEMPLATE ✕</span></span>
+            </div>
+          </div>
+        </div>
+        <ol class="ann-list">
+          <li><span class="annot-dot">1</span>Es literalmente el caso Horacio del spec: proyecto correcto, solo 2 de 40 unidades, nombradas de forma explícita.</li>
+          <li><span class="annot-dot">2</span>Los permisos se muestran ya calculados (rol × proyecto × unidad) — no se editan sueltos aquí, evita divergencia con lo que aplica RLS de verdad.</li>
+        </ol>
+      </div>
+
+      <div class="screen" id="s4">
+        <div class="screen-head"><h3>04 · Auditoría global</h3><span class="tag new">Pantalla nueva</span><span class="role-tag">Admin (global) · Coordinator/Operations (acotada a su proyecto)</span></div>
+        <div class="win">
+          <div class="win-bar"><div class="dots"><span></span><span></span><span></span></div><span class="path">/org/auditoria</span></div>
+          <div class="canvas">
+            <div class="row wrap"><span class="box btn-ghost"><span class="ph">Proyecto</span></span><span class="box btn-ghost"><span class="ph">Entidad</span></span><span class="box btn-ghost"><span class="ph">Usuario</span></span><span class="box btn-ghost"><span class="ph">Rango de fechas</span></span><span class="box btn-ghost"><span class="ph">Acción</span></span></div>
+            <table class="tbl">
+              <tr><th>Fecha</th><th>Actor</th><th>Entidad</th><th>Acción</th><th>Antes → Después</th></tr>
+              <tr><td><span class="ph">19 AGO 09:31</span></td><td><span class="ph dark">Juan Rodríguez</span></td><td><span class="ph">Málaga Centro · riesgo</span></td><td><span class="ph">UPDATE</span></td><td><span class="badge-risk">Alto</span> → <span class="badge-risk">Crítico</span></td></tr>
+              <tr><td><span class="ph">18 AGO 00:01</span></td><td><span class="ph dark">Sistema</span></td><td><span class="ph">Confirmar recepción</span></td><td><span class="ph">MARK_OVERDUE</span></td><td><span class="ph">— → Vencida</span></td></tr>
+            </table>
+          </div>
+        </div>
+        <ol class="ann-list">
+          <li><span class="annot-dot">1</span>Mismo componente para Admin (global) y Coordinator/Operations (acotado) — cambia el dataset, no la pantalla.</li>
+          <li><span class="annot-dot">2</span>Solo lectura por diseño: append-only, sin acciones de edición o borrado disponibles aquí.</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ============ PROJECT ============ -->
+    <section id="s5">
+      <div class="section-head"><span class="section-num">Proyecto</span><h2>Configuración y plantillas</h2></div>
+      <p class="section-intro">El bloque que hace real "Drive como repositorio oficial" y "plantillas versionadas". Sin mockup de partida — se diseña desde el modelo funcional del spec (§6-8, §18).</p>
+
+      <div class="screen">
+        <div class="screen-head"><h3>05 · Project Settings · Google Drive</h3><span class="tag new">Pantalla nueva · requisito crítico</span><span class="role-tag">Admin</span></div>
+        <div class="win">
+          <div class="win-bar"><div class="dots"><span></span><span></span><span></span></div><span class="path">/proyectos/kioscos-2026/settings/drive</span></div>
+          <div class="canvas">
+            <div class="row wrap">
+              <div class="col box deep grow" style="padding:14px; min-width:220px;">
+                <span class="ph dark">Estado de integración</span>
+                <span class="badge-status">Conectado</span>
+                <span class="ph">Shared Drive: Kioscos España 2026</span>
+                <span class="ph">Carpeta raíz: /PROJECTS/Kioscos España 2026</span>
+                <div class="row"><span class="btn btn-s">Abrir en Drive ↗</span><span class="btn btn-s">Reintentar sincronización</span></div>
+              </div>
+              <div class="col box deep grow" style="padding:14px; min-width:220px;">
+                <span class="ph dark">Estructura de carpetas (plantilla activa)</span>
+                <span class="ph">01_PRE_INSTALACION</span><span class="ph" style="padding-left:12px;">Estado_inicial · Tienda · Electricidad · Conectividad</span>
+                <span class="ph">02_INSTALACION</span><span class="ph" style="padding-left:12px;">Llegada · Montaje · Cableado · Equipamiento · Pruebas</span>
+                <span class="ph">03_POST_INSTALACION · 04_INCIDENCIAS</span>
+              </div>
+            </div>
+            <div class="row box deep" style="padding:12px; justify-content:space-between; align-items:center;">
+              <span class="ph">Configurado por Juan Rodríguez · 15 AGO 2026 · 0 errores pendientes</span>
+              <span class="badge-status">Sincronizado</span>
+            </div>
+          </div>
+        </div>
+        <ol class="ann-list">
+          <li><span class="annot-dot">1</span>Ningún ID técnico de API ni token visible — solo estado, carpeta y errores en lenguaje operativo (§ "No expongas complejidad técnica innecesaria").</li>
+          <li><span class="annot-dot">2</span>"Reintentar" reprocesa solo lo que está en error, no repite la sincronización completa.</li>
+          <li><span class="annot-dot">3</span>La estructura de carpetas es de solo lectura aquí — se cambia editando el template (pantalla 07), nunca desde Settings.</li>
+        </ol>
+      </div>
+
+      <div class="screen" id="s6">
+        <div class="screen-head"><h3>06 · Plantillas</h3><span class="tag new">Pantalla nueva</span><span class="role-tag">Admin (edita) · Coordinator (lectura)</span></div>
+        <div class="win">
+          <div class="win-bar"><div class="dots"><span></span><span></span><span></span></div><span class="path">/proyectos/kioscos-2026/plantillas</span></div>
+          <div class="canvas">
+            <div class="row wrap" style="justify-content:space-between;"><span class="ph dark">Plantillas del proyecto</span><span class="btn btn-p">+ Nueva plantilla</span></div>
+            <div class="row box deep" style="padding:14px; align-items:center; justify-content:space-between;">
+              <div class="col" style="gap:4px;"><span class="ph dark">Instalación Kiosco</span><span class="ph">40 unidades usan esta plantilla</span></div>
+              <div class="row" style="align-items:center;"><span class="badge-status">v2.1 · activa</span><span class="btn btn-s">Ver versiones</span><span class="btn btn-s">Editar</span></div>
+            </div>
+            <div class="row wrap" style="padding-left:14px;"><span class="ph">v1.0 · 02 JUL</span><span class="ph">v1.1 · 20 JUL</span><span class="ph">v2.0 · 05 AGO</span><span class="ph dark">v2.1 · 15 AGO (activa)</span></div>
+          </div>
+        </div>
+        <ol class="ann-list">
+          <li><span class="annot-dot">1</span>Cambiar de versión activa no reescribe unidades en curso — cada una conserva la versión con la que se ejecutó (§8).</li>
+        </ol>
+      </div>
+
+      <div class="screen" id="s7">
+        <div class="screen-head"><h3>07 · Template Editor</h3><span class="tag new">Pantalla nueva</span><span class="role-tag">Admin</span></div>
+        <div class="win">
+          <div class="win-bar"><div class="dots"><span></span><span></span><span></span></div><span class="path">/plantillas/instalacion-kiosco/editar</span><span class="badge-status" style="margin-left:auto;">Editando v2.2 · borrador</span></div>
+          <div class="row" style="align-items:stretch;">
+            <div class="navmini" style="width:170px;">
+              <div class="grp">Fases</div>
+              <div class="it on"><span class="sq"></span>Pre-instalación</div>
+              <div class="it"><span class="sq"></span>Instalación</div>
+              <div class="it"><span class="sq"></span>Post-instalación</div>
+              <div class="it btn-ghost" style="margin-top:8px;"><span class="sq"></span>+ Añadir fase</div>
+            </div>
+            <div class="canvas grow">
+              <table class="tbl">
+                <tr><th>Tarea</th><th>Responsable</th><th>Oblig.</th><th>Fecha rel.</th><th>Gate</th><th>Evidencia</th></tr>
+                <tr><td><span class="ph dark">Confirmar toma eléctrica &lt;2m</span></td><td><span class="ph">Tienda</span></td><td><span class="badge-status">Sí</span></td><td><span class="ph">T-7</span></td><td><span class="ph">Ready for Install</span></td><td><span class="box btn-ghost" style="padding:2px 8px;"><span class="ph">— añadir</span></span></td></tr>
+                <tr><td><span class="ph dark">Confirmar recepción del kiosco</span></td><td><span class="ph">Tienda</span></td><td><span class="badge-status">Sí</span></td><td><span class="ph">T-5</span></td><td><span class="ph">Ready for Install</span></td><td><span class="ph">—</span></td></tr>
+                <tr><td><span class="ph dark">Adjuntar fotografía final</span></td><td><span class="ph">Instalador</span></td><td><span class="badge-status">Sí</span></td><td><span class="ph">T</span></td><td><span class="ph">Pending Validation</span></td><td><span class="badge-risk" style="cursor:pointer;">4 evidencias →</span></td></tr>
+              </table>
+              <span class="btn btn-ghost" style="align-self:flex-start;">+ Añadir tarea</span>
+              <div style="margin-left:auto;"><span class="btn btn-p">Publicar nueva versión</span></div>
+            </div>
+          </div>
+        </div>
+        <ol class="ann-list">
+          <li><span class="annot-dot">1</span>Editar aquí siempre abre una versión en borrador — v2.1 activa nunca se sobreescribe en silencio.</li>
+          <li><span class="annot-dot">2</span>Al publicar: modal de alcance — solo futuras / unidades abiertas / unidades seleccionadas / todas incluidas cerradas (acción extraordinaria, confirmación reforzada).</li>
+          <li><span class="annot-dot">3</span>La celda "Evidencia" abre el Evidence Requirement Editor (pantalla 08) como panel lateral sin perder el contexto de la tarea.</li>
+        </ol>
+      </div>
+
+      <div class="screen" id="s8">
+        <div class="screen-head"><h3>08 · Evidence Requirement Editor</h3><span class="tag new">Panel lateral · pantalla nueva</span><span class="role-tag">Admin</span></div>
+        <div class="win">
+          <div class="win-bar"><div class="dots"><span></span><span></span><span></span></div><span class="path">panel · tarea "Adjuntar fotografía final"</span></div>
+          <div class="row">
+            <div class="col grow box deep" style="padding:14px;">
+              <span class="ph dark">Tipo de evidencia</span><span class="ph">☑ Foto ☐ Documento ☐ Otro</span>
+              <span class="ph dark">Cantidad mínima</span><span class="box btn-ghost" style="width:80px; padding:4px 8px;"><span class="ph">4</span></span>
+              <span class="ph dark">Categorías requeridas</span>
+              <div class="row wrap"><span class="badge-status">Foto frontal</span><span class="badge-status">Cableado posterior</span><span class="badge-status">Pantalla encendida</span><span class="badge-status">PDV general</span><span class="btn btn-ghost">+ añadir</span></div>
+              <span class="ph dark">Instrucciones de captura</span><span class="box" style="height:40px;"></span>
+              <span class="ph dark">Carpeta de destino</span><span class="ph">02_INSTALACION / Pruebas</span>
+            </div>
+            <div class="col box deep" style="padding:14px; width:190px; flex:none;">
+              <span class="ph dark">Preview — lo que ve el instalador</span>
+              <span class="ph">✓ Foto frontal</span><span class="ph">✓ Cableado posterior</span><span class="ph">○ Pantalla encendida</span><span class="ph">○ Foto general PDV</span>
+              <span class="badge-risk">2 / 4 evidencias</span>
+            </div>
+          </div>
+        </div>
+        <ol class="ann-list">
+          <li><span class="annot-dot">1</span>El preview lateral es el mismo componente que verá el instalador — no una aproximación aparte que pueda desincronizarse.</li>
+          <li><span class="annot-dot">2</span>La carpeta de destino solo permite elegir entre las subcarpetas ya existentes del template — no se escriben rutas libres.</li>
+        </ol>
+      </div>
+
+      <div class="screen" id="s9">
+        <div class="screen-head"><h3>09 · Importar PDV (CSV/XLSX)</h3><span class="tag new">Wizard 3 pasos</span><span class="role-tag">Admin · Coordinator</span></div>
+        <div class="win">
+          <div class="win-bar"><div class="dots"><span></span><span></span><span></span></div><span class="path">/proyectos/kioscos-2026/importar</span></div>
+          <div class="canvas">
+            <div class="row"><span class="badge-status">1 Subir archivo</span><span class="ph">→</span><span class="badge-status">2 Mapear columnas</span><span class="ph">→</span><span class="badge-status">3 Revisar</span></div>
+            <table class="tbl">
+              <tr><th>Fila</th><th>Código</th><th>PDV</th><th>Ciudad</th><th>Fecha prevista</th><th>Estado</th></tr>
+              <tr><td><span class="ph">1</span></td><td><span class="ph">001</span></td><td><span class="ph dark">Madrid Sol</span></td><td><span class="ph">Madrid</span></td><td><span class="ph">21 AGO</span></td><td><span class="badge-status">OK</span></td></tr>
+              <tr><td><span class="ph">14</span></td><td><span class="ph">014</span></td><td><span class="ph dark">Sevilla ???</span></td><td><span class="ph">—</span></td><td><span class="ph">—</span></td><td><span class="badge-risk">Error · falta ciudad</span></td></tr>
+            </table>
+            <div class="row wrap" style="justify-content:space-between; align-items:center;"><span class="ph">38 OK · 2 con errores</span><span class="btn btn-p">Importar 38 PDV</span></div>
+          </div>
+        </div>
+        <ol class="ann-list">
+          <li><span class="annot-dot">1</span>Ninguna fila con error se importa en silencio — queda listada aparte hasta corregirla o excluirla explícitamente.</li>
+          <li><span class="annot-dot">2</span>Al confirmar se dispara automáticamente el flujo completo: plantilla → fases/tareas → fechas relativas → responsables por defecto → carpeta Drive por unidad.</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ============ WORK UNIT ============ -->
+    <section id="s10">
+      <div class="section-head"><span class="section-num">Work Unit</span><h2>Evidencias, incidencias, comunicación</h2></div>
+      <p class="section-intro">Lo que convierte una foto subida desde el móvil en un archivo con dueño, contexto y trazabilidad.</p>
+
+      <div class="screen">
+        <div class="screen-head"><h3>10 · Evidence Gallery</h3><span class="tag new">Tab de unidad · pantalla nueva</span><span class="role-tag">Todos (subida/Drive según rol)</span></div>
+        <div class="win">
+          <div class="win-bar"><div class="dots"><span></span><span></span><span></span></div><span class="path">/pdv/malaga-centro/evidencias</span></div>
+          <div class="canvas">
+            <div class="row wrap" style="justify-content:space-between;">
+              <div class="row wrap"><span class="box solid btn"><span class="ph">Galería</span></span><span class="box btn-ghost"><span class="ph">Lista</span></span><span class="box btn-ghost"><span class="ph">Fase</span></span><span class="box btn-ghost"><span class="ph">Tarea</span></span><span class="box btn-ghost"><span class="ph">Tipo</span></span><span class="box btn-ghost"><span class="ph">Autor</span></span></div>
+              <span class="btn btn-s">Abrir carpeta en Google Drive ↗</span>
+            </div>
+            <div class="grid3">
+              <div class="col box deep" style="padding:0;"><span class="box" style="height:90px;"></span><div style="padding:8px;"><span class="ph dark">Cableado posterior</span><span class="ph">Pedro M. · 27 AGO</span></div></div>
+              <div class="col box deep" style="padding:0;"><span class="box" style="height:90px;"></span><div style="padding:8px;"><span class="ph dark">Foto frontal</span><span class="ph">Pedro M. · 27 AGO</span></div></div>
+              <div class="col box deep" style="padding:0;"><span class="box" style="height:90px;"></span><div style="padding:8px;"><span class="ph dark">Estado inicial</span><span class="ph">Patricia G. · 20 AGO · <span class="badge-status">Antes</span></span></div></div>
+            </div>
+          </div>
+        </div>
+        <ol class="ann-list">
+          <li><span class="annot-dot">1</span>"Abrir en Drive" desaparece del todo para Installer/proveedores externos — no se deshabilita, no aparece.</li>
+          <li><span class="annot-dot">2</span>Evidencias con visibilidad MANAGEMENT se omiten para roles sin ese alcance — ni siquiera como miniatura bloqueada.</li>
+          <li><span class="annot-dot">3</span>El par Antes/Después empareja automáticamente la misma categoría entre Estado_inicial y Resultado_final.</li>
+        </ol>
+      </div>
+
+      <div class="screen" id="s11">
+        <div class="screen-head"><h3>11 · Estados de subida de evidencia</h3><span class="tag new">Catálogo de componente · crítico</span><span class="role-tag">Installer · móvil</span></div>
+        <div class="states-strip">
+          <div class="state-card"><span class="st-label">Idle</span><span class="ph dark">Añadir evidencia</span><span class="badge-risk">2 / 4</span><span class="btn btn-p" style="margin-top:8px;">+ Cámara / Galería</span></div>
+          <div class="state-card"><span class="st-label">Preview</span><span class="box" style="height:70px;"></span><div class="row" style="margin-top:8px;"><span class="btn btn-s grow">Repetir</span><span class="btn btn-p grow">Confirmar</span></div></div>
+          <div class="state-card"><span class="st-label">Subiendo</span><span class="box" style="height:70px;"></span><span class="box" style="height:6px; margin-top:8px;"><span class="box solid" style="width:60%; height:6px; display:block;"></span></span><span class="ph">62%</span></div>
+          <div class="state-card"><span class="st-label">Subida</span><span class="box" style="height:70px;"></span><span class="badge-status" style="margin-top:8px;">✓ Guardada</span><span class="badge-risk">3 / 4</span></div>
+          <div class="state-card" style="border-color:var(--annot);"><span class="st-label" style="color:var(--annot);">Error</span><span class="box" style="height:70px;"></span><span class="ph" style="color:var(--annot);">Sin conexión</span><span class="btn btn-p" style="margin-top:8px;">Reintentar</span></div>
+        </div>
+        <ol class="ann-list">
+          <li><span class="annot-dot">1</span>"Subida" solo se pinta tras confirmar Drive <b>y</b> Supabase — nunca antes, ni de forma optimista.</li>
+          <li><span class="annot-dot">2</span>En Error, el archivo capturado se conserva en el dispositivo — Reintentar reenvía el mismo archivo, nunca pide repetir la foto.</li>
+          <li><span class="annot-dot">3</span>El contador x/n vive fijo en la barra superior de la tarea durante todo el flujo, no solo al terminar.</li>
+        </ol>
+      </div>
+
+      <div class="screen" id="s12">
+        <div class="screen-head"><h3>12 · Incidencias</h3><span class="tag new">Lista + detalle · sin mockup</span><span class="role-tag">Todos (creación según rol)</span></div>
+        <div class="grid2">
+          <div class="win">
+            <div class="win-bar"><div class="dots"><span></span><span></span><span></span></div><span class="path">/proyectos/kioscos-2026/incidencias</span></div>
+            <div class="canvas">
+              <table class="tbl">
+                <tr><th>PDV</th><th>Categoría</th><th>Severidad</th><th>Estado</th></tr>
+                <tr><td><span class="ph dark">Málaga Centro</span></td><td><span class="ph">Electricidad</span></td><td><span class="badge-risk">Crítica</span></td><td><span class="badge-status">Open</span></td></tr>
+                <tr><td><span class="ph dark">Bilbao Centro</span></td><td><span class="ph">Material</span></td><td><span class="badge-risk">Media</span></td><td><span class="badge-status">In Progress</span></td></tr>
+              </table>
+              <span class="btn btn-p" style="align-self:flex-start;">+ Nueva incidencia</span>
+            </div>
+          </div>
+          <div class="win">
+            <div class="win-bar"><div class="dots"><span></span><span></span><span></span></div><span class="path">incidencia · Málaga Centro</span></div>
+            <div class="canvas">
+              <span class="badge-risk">Crítica · Electricidad</span>
+              <span class="ph dark">Cuadro eléctrico sin acceso confirmado por la tienda.</span>
+              <div class="row wrap"><span class="badge-status">Open</span><span class="ph">→</span><span class="ph">In Progress</span><span class="ph">→</span><span class="ph">Resolved</span><span class="ph">→</span><span class="ph">Closed</span></div>
+              <span class="box" style="height:60px;"></span>
+            </div>
+          </div>
+        </div>
+        <ol class="ann-list">
+          <li><span class="annot-dot">1</span>El estado sigue el stepper lineal del spec — sin salto directo de Open a Closed.</li>
+          <li><span class="annot-dot">2</span>Una incidencia crítica abierta bloquea el gate Operative de la unidad relacionada (§28).</li>
+        </ol>
+      </div>
+
+      <div class="screen" id="s13">
+        <div class="screen-head"><h3>13 · Comentarios con visibilidad</h3><span class="tag new">Tab de unidad · sin mockup</span><span class="role-tag">Todos (feed acotado por visibilidad)</span></div>
+        <div class="win">
+          <div class="win-bar"><div class="dots"><span></span><span></span><span></span></div><span class="path">/pdv/malaga-centro/comentarios</span></div>
+          <div class="canvas">
+            <div class="row box deep" style="padding:10px; align-items:flex-start;"><span class="box" style="width:26px;height:26px;border-radius:50%;flex:none;"></span><div class="col" style="gap:3px;"><span class="ph dark">Patricia G. <span class="badge-status">Participants</span></span><span class="ph">Pendiente confirmación de acceso técnico.</span></div></div>
+            <div class="row box deep" style="padding:10px; align-items:flex-start;"><span class="box" style="width:26px;height:26px;border-radius:50%;flex:none;"></span><div class="col" style="gap:3px;"><span class="ph dark">Juan R. <span class="badge-risk">Internal</span></span><span class="ph">Revisar impacto contractual con el proveedor.</span></div></div>
+            <div class="row" style="align-items:center;"><span class="box grow" style="height:34px;"></span><span class="box btn-ghost"><span class="ph">Visibilidad ▾</span></span><span class="btn btn-p">Publicar</span></div>
+          </div>
+        </div>
+        <ol class="ann-list">
+          <li><span class="annot-dot">1</span>Elegir visibilidad es obligatorio antes de publicar — no hay default "público" implícito.</li>
+          <li><span class="annot-dot">2</span>Un usuario sin alcance MANAGEMENT no ve esos comentarios, y no queda rastro de que existan en su feed.</li>
+        </ol>
+      </div>
+
+      <div class="screen" id="s14">
+        <div class="screen-head"><h3>14 · Timeline</h3><span class="tag new">Tab de unidad · sin mockup</span><span class="role-tag">Todos</span></div>
+        <div class="win">
+          <div class="win-bar"><div class="dots"><span></span><span></span><span></span></div><span class="path">/pdv/malaga-centro/timeline</span></div>
+          <div class="canvas">
+            <div class="row wrap"><span class="box btn-ghost"><span class="ph">Todos</span></span><span class="box btn-ghost"><span class="ph">Estado</span></span><span class="box btn-ghost"><span class="ph">Evidencias</span></span><span class="box btn-ghost"><span class="ph">Incidencias</span></span></div>
+            <div class="row" style="align-items:center;"><span class="badge-risk">●</span><span class="ph">19 AGO 09:31 · Juan Rodríguez · Riesgo Alto → Crítico</span></div>
+            <div class="row" style="align-items:center;"><span class="badge-status">●</span><span class="ph">19 AGO 09:42 · Patricia Gómez · Comentó (Participants)</span></div>
+            <div class="row" style="align-items:center;"><span class="box" style="width:8px;height:8px;background:var(--ink-faint);"></span><span class="ph">18 AGO 00:01 · Sistema · "Confirmar recepción" vencida</span></div>
+            <span class="btn btn-ghost" style="align-self:flex-start;">Cargar más</span>
+          </div>
+        </div>
+        <ol class="ann-list">
+          <li><span class="annot-dot">1</span>Eventos de sistema (icono neutro) se distinguen visualmente de acciones humanas (avatar) sin necesidad de leer el texto.</li>
+          <li><span class="annot-dot">2</span>Un evento solo aparece si el usuario tiene acceso a la entidad que lo originó.</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ============ PERSONAL ============ -->
+    <section id="s15">
+      <div class="section-head"><span class="section-num">Personal</span><h2>Mis tareas y calendario</h2></div>
+      <p class="section-intro">Lo que cada usuario ve al llegar, filtrado siempre por su alcance de acceso real.</p>
+
+      <div class="screen">
+        <div class="screen-head"><h3>15 · Mis tareas</h3><span class="tag new">Sin mockup</span><span class="role-tag">Todos los roles</span></div>
+        <div class="win">
+          <div class="win-bar"><div class="dots"><span></span><span></span><span></span></div><span class="path">/mis-tareas</span></div>
+          <div class="canvas">
+            <div class="row wrap"><span class="box solid btn"><span class="ph">Vencidas · 6</span></span><span class="box btn-ghost"><span class="ph">Hoy · 3</span></span><span class="box btn-ghost"><span class="ph">Esta semana</span></span><span class="box btn-ghost"><span class="ph">Bloqueadas</span></span></div>
+            <table class="tbl">
+              <tr><th>Tarea</th><th>PDV</th><th>Fase</th><th>Deadline</th><th>Riesgo</th></tr>
+              <tr><td><span class="ph dark">Confirmar acceso técnico</span></td><td><span class="ph">Málaga Centro</span></td><td><span class="ph">Pre-instalación</span></td><td><span class="ph">Vence hoy</span></td><td><span class="badge-risk">Crítico</span></td></tr>
+              <tr><td><span class="ph dark">Confirmar recepción del kiosco</span></td><td><span class="ph">Málaga Centro</span></td><td><span class="ph">Pre-instalación</span></td><td><span class="ph">Vencida</span></td><td><span class="badge-risk">Crítico</span></td></tr>
+            </table>
+          </div>
+        </div>
+        <ol class="ann-list">
+          <li><span class="annot-dot">1</span>Los contadores de las pestañas ya están pre-filtrados por permisos — nunca revelan volumen fuera del alcance del usuario.</li>
+          <li><span class="annot-dot">2</span>Las acciones inline respetan los mismos gates que el checklist completo.</li>
+        </ol>
+      </div>
+
+      <div class="screen" id="s16">
+        <div class="screen-head"><h3>16 · Calendario</h3><span class="tag new">Vista ligera · a validar</span><span class="role-tag">Admin · Coordinator · Operations</span></div>
+        <div class="win">
+          <div class="win-bar"><div class="dots"><span></span><span></span><span></span></div><span class="path">/proyectos/kioscos-2026/calendario</span></div>
+          <div class="canvas">
+            <div class="row wrap" style="justify-content:space-between;"><span class="ph dark">Agosto 2026</span><div class="row"><span class="box btn-ghost"><span class="ph">Semana</span></span><span class="box solid btn"><span class="ph">Mes</span></span></div></div>
+            <div class="grid3">
+              <div class="col box deep" style="padding:8px; min-height:64px;"><span class="ph">21 AGO</span><span class="badge-status">001 Instalación</span></div>
+              <div class="col box deep" style="padding:8px; min-height:64px;"><span class="ph">25 AGO</span><span class="badge-status">003 Ready</span></div>
+              <div class="col box deep" style="padding:8px; min-height:64px;"><span class="ph">27 AGO</span><span class="badge-risk">024 Instalación · crítico</span></div>
+            </div>
+          </div>
+        </div>
+        <ol class="ann-list">
+          <li><span class="annot-dot">1</span>Lectura por fecha/responsable, no por PDV — no duplica el Gantt (hipótesis F10 de Fase 1, a confirmar).</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ============ MOBILE ============ -->
+    <section id="s17">
+      <div class="section-head"><span class="section-num">Móvil</span><h2>Flujo del instalador</h2></div>
+      <p class="section-intro">~390px, de principio a fin, sin derivar del desktop. El máximo estado alcanzable desde aquí es Pending Validation — nunca Operativo.</p>
+      <div class="strip">
+        <div class="phone"><div class="phone-notch"></div><div class="phone-canvas">
+          <span class="ph dark">Mis instalaciones</span>
+          <div class="box deep" style="padding:8px;"><span class="ph dark">Málaga Centro · HOY</span><span class="badge-risk">Crítico</span></div>
+          <div class="box deep" style="padding:8px;"><span class="ph dark">Bilbao Centro · 30 AGO</span></div>
+          <div class="box deep" style="padding:8px;"><span class="ph dark">A Coruña · 01 SEP</span></div>
+        </div><div class="phone-label">a · Mis instalaciones</div></div>
+
+        <div class="phone"><div class="phone-notch"></div><div class="phone-canvas">
+          <span class="ph dark">Málaga Centro</span><span class="box" style="height:70px;"></span>
+          <span class="btn btn-p">Registrar llegada</span>
+          <span class="ph">Checklist · 11/14</span>
+        </div><div class="phone-label">b · Instalación de hoy</div></div>
+
+        <div class="phone"><div class="phone-notch"></div><div class="phone-canvas">
+          <span class="ph dark">Checklist</span>
+          <div class="row" style="align-items:center;"><span class="badge-status">☐</span><span class="ph grow">Llegada y foto inicial</span></div>
+          <div class="row" style="align-items:center;"><span class="badge-status">☐</span><span class="ph grow">Instalar y conectar</span></div>
+          <div class="row" style="align-items:center;"><span class="badge-risk">☐</span><span class="ph grow">Adjuntar foto final</span></div>
+        </div><div class="phone-label">c · Checklist</div></div>
+
+        <div class="phone"><div class="phone-notch"></div><div class="phone-canvas">
+          <span class="ph dark">Adjuntar foto final</span><span class="badge-risk">2 / 4</span>
+          <div class="grid2"><span class="box" style="height:50px;"></span><span class="box" style="height:50px;"></span></div>
+          <span class="phone-cta">+ Cámara / Galería</span>
+        </div><div class="phone-label">d · Captura de evidencia</div></div>
+
+        <div class="phone"><div class="phone-notch"></div><div class="phone-canvas">
+          <span class="ph dark">Nueva incidencia</span>
+          <span class="box btn-ghost" style="padding:6px;"><span class="ph">Categoría ▾</span></span>
+          <span class="box" style="height:50px;"></span>
+          <span class="box" style="height:36px;"></span>
+          <span class="phone-cta">Crear incidencia</span>
+        </div><div class="phone-label">e · Incidencia rápida</div></div>
+
+        <div class="phone"><div class="phone-notch"></div><div class="phone-canvas">
+          <span class="ph dark">Finalizar instalación</span>
+          <span class="ph">13 / 14 tareas obligatorias</span>
+          <span class="badge-risk">Faltan 2 evidencias obligatorias</span>
+          <span class="phone-cta blocked">Enviar a validación</span>
+        </div><div class="phone-label">f · Finalizar → Pending Validation</div></div>
+      </div>
+      <ol class="ann-list">
+        <li><span class="annot-dot">1</span>El instalador nunca ve un botón "Marcar Operativo" — el techo del flujo móvil es Pending Validation.</li>
+        <li><span class="annot-dot">2</span>El CTA de finalizar queda bloqueado (gris) mientras falten evidencias obligatorias, con el texto literal del spec.</li>
+        <li><span class="annot-dot">3</span>Todo el flujo se opera con el pulgar — el CTA principal vive siempre en la franja inferior alcanzable.</li>
+      </ol>
+    </section>
+
+    <!-- ============ CROSS-CUTTING ============ -->
+    <section id="s18">
+      <div class="section-head"><span class="section-num">Transversal</span><h2>Denegado · vacío · error · degradado</h2></div>
+      <p class="section-intro">Los cuatro estados que toda pantalla con datos reales necesita, y que ningún mockup cubre.</p>
+      <div class="grid2">
+        <div class="col box deep" style="padding:18px; align-items:center; text-align:center;">
+          <span class="box" style="width:34px;height:34px;border-radius:50%;"></span>
+          <span class="ph dark">No tienes acceso a esta instalación</span>
+          <span class="ph">Contacta a tu coordinador de proyecto.</span>
+        </div>
+        <div class="col box deep" style="padding:18px; align-items:center; text-align:center;">
+          <span class="box" style="width:34px;height:34px;"></span>
+          <span class="ph dark">Sin incidencias abiertas</span>
+          <span class="ph">Todo en orden por ahora.</span>
+        </div>
+        <div class="col box deep" style="padding:18px; align-items:center; text-align:center;">
+          <span class="box" style="width:34px;height:34px;"></span>
+          <span class="ph dark">No se pudo cargar</span>
+          <span class="btn btn-s">Reintentar</span>
+        </div>
+        <div class="row box deep" style="padding:12px; align-items:center;">
+          <span class="badge-risk">●</span><span class="ph">Conexión inestable — los cambios se sincronizarán automáticamente</span>
+        </div>
+      </div>
+      <ol class="ann-list">
+        <li><span class="annot-dot">1</span>Permission Denied nunca confirma ni niega si el recurso existe — mismo mensaje exista o no el PDV.</li>
+        <li><span class="annot-dot">2</span>El banner de conectividad degradada es informativo, no bloqueante — no impide seguir trabajando.</li>
+      </ol>
+    </section>
+
+    <section id="next" style="border-bottom:none;">
+      <div class="section-head"><span class="section-num">→</span><h2>Próxima ola</h2></div>
+      <div class="end-cta">
+        <h4>Ola 2 · corrección de las pantallas con mockup de partida</h4>
+        <p style="margin:0 0 10px;">Dashboard/Control Tower, Unidades de trabajo, Gantt, Mapa y Checklist de unidad — aplicando F1, F2, F6, F9, F11, F13 y F14 del audit de Fase 1 sobre la base que ya existía, más el catálogo de estados vacío/carga/error a nivel de sistema.</p>
+        <p style="margin:0;"><a href="https://claude.ai/code/artifact/15486825-b3e8-4c48-8ea6-4e7a3b7303b0" style="color:var(--annot);">Ver Ola 2 · Control Tower Corrections →</a></p>
+      </div>
+    </section>
+
+    <footer>Gestor de Proyectos SERCOM · Vodafone — Wireframes, ola 1 de 2 · Fidelidad deliberadamente baja, sin decisiones de color/tipografía de producto.</footer>
+  </main>
+</div>
