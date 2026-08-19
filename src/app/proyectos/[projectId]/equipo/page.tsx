@@ -15,7 +15,8 @@ import {
   grantProjectTeamAccess,
   revokeProjectTeamAccess,
 } from "@/lib/actions/team";
-import { RoleSelect, ROLE_LABEL, ASSIGNABLE_ROLES } from "@/components/ui/role-select";
+import { RoleSelect } from "@/components/ui/role-select";
+import { ROLE_LABEL, ASSIGNABLE_ROLES } from "@/lib/roles";
 import { ConfirmSubmitButton } from "@/components/ui/confirm-submit-button";
 
 function initials(name: string) {

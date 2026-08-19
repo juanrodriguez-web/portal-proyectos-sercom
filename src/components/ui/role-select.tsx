@@ -2,16 +2,7 @@
 
 import { useTransition } from "react";
 import type { AppRole } from "@/lib/queries/team";
-
-const ROLE_LABEL: Record<AppRole, string> = {
-  ADMIN: "Admin",
-  COORDINATOR: "Coordinador",
-  OPERATIONS: "Operations",
-  INSTALLER: "Instalador",
-  VIEWER: "Viewer",
-};
-
-const ASSIGNABLE_ROLES: AppRole[] = ["COORDINATOR", "OPERATIONS", "INSTALLER", "VIEWER"];
+import { ROLE_LABEL, ASSIGNABLE_ROLES } from "@/lib/roles";
 
 export function RoleSelect({
   value,
@@ -40,5 +31,3 @@ export function RoleSelect({
     </select>
   );
 }
-
-export { ROLE_LABEL, ASSIGNABLE_ROLES };
