@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { listWorkUnits } from "@/lib/queries/work-units";
+import { getChecklistProgressByProject } from "@/lib/queries/tasks";
 import { StatusChip, RiskChip } from "@/components/ui/status-chip";
 
 function formatDate(value: string | null) {
@@ -11,7 +12,10 @@ export default async function WorkUnitsPage({
   params,
 }: PageProps<"/proyectos/[projectId]/unidades">) {
   const { projectId } = await params;
-  const units = await listWorkUnits(projectId);
+  const [units, progressByUnit] = await Promise.all([
+    listWorkUnits(projectId),
+    getChecklistProgressByProject(projectId),
+  ]);
 
   return (
     <div className="flex flex-col gap-4">
@@ -33,27 +37,44 @@ export default async function WorkUnitsPage({
               <Th>Provincia</Th>
               <Th>Estado</Th>
               <Th>Riesgo</Th>
+              <Th>Progreso</Th>
               <Th>Instalación prevista</Th>
               <Th>Contacto</Th>
             </tr>
           </thead>
           <tbody>
-            {units.map((u) => (
-              <tr key={u.id} className="border-t hover:bg-[var(--surface-2)]" style={{ borderColor: "var(--border)" }}>
-                <Td>
-                  <Link href={`/proyectos/${projectId}/unidades/${u.id}`} className="block">
-                    <span className="block font-medium" style={{ color: "var(--ink)" }}>{u.name}</span>
-                    <span className="font-mono text-[11px]" style={{ color: "var(--ink-faint)" }}>{u.code}</span>
-                  </Link>
-                </Td>
-                <Td>{u.city ?? "—"}</Td>
-                <Td>{u.province ?? "—"}</Td>
-                <Td><StatusChip status={u.status} /></Td>
-                <Td><RiskChip risk={u.risk_level} /></Td>
-                <Td className="font-mono">{formatDate(u.installation_planned_at)}</Td>
-                <Td>{u.contact_name ?? "—"}</Td>
-              </tr>
-            ))}
+            {units.map((u) => {
+              const progress = progressByUnit[u.id];
+              const pct = progress && progress.total > 0 ? Math.round((progress.done / progress.total) * 100) : null;
+              return (
+                <tr key={u.id} className="border-t hover:bg-[var(--surface-2)]" style={{ borderColor: "var(--border)" }}>
+                  <Td>
+                    <Link href={`/proyectos/${projectId}/unidades/${u.id}`} className="block">
+                      <span className="block font-medium" style={{ color: "var(--ink)" }}>{u.name}</span>
+                      <span className="font-mono text-[11px]" style={{ color: "var(--ink-faint)" }}>{u.code}</span>
+                    </Link>
+                  </Td>
+                  <Td>{u.city ?? "—"}</Td>
+                  <Td>{u.province ?? "—"}</Td>
+                  <Td><StatusChip status={u.status} /></Td>
+                  <Td><RiskChip risk={u.risk_level} /></Td>
+                  <Td>
+                    {pct === null ? (
+                      <span style={{ color: "var(--ink-faint)" }}>—</span>
+                    ) : (
+                      <div className="flex items-center gap-2">
+                        <div className="h-1.5 w-16 overflow-hidden rounded-full" style={{ background: "var(--surface-2)" }}>
+                          <div className="h-full" style={{ width: `${pct}%`, background: "var(--accent)" }} />
+                        </div>
+                        <span className="font-mono text-[11px]" style={{ color: "var(--ink-faint)" }}>{pct}%</span>
+                      </div>
+                    )}
+                  </Td>
+                  <Td className="font-mono">{formatDate(u.installation_planned_at)}</Td>
+                  <Td>{u.contact_name ?? "—"}</Td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
