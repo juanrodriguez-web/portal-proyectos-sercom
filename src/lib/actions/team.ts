@@ -27,7 +27,17 @@ async function resolveOrInviteProfile(email: string): Promise<string> {
   const { data: invited, error: inviteError } = await admin.auth.admin.inviteUserByEmail(email, {
     redirectTo: `${APP_URL}/auth/callback`,
   });
-  if (inviteError) throw inviteError;
+  if (inviteError) {
+    // GoTrue devuelve status 504/AuthRetryableFetchError cuando el envio
+    // por SMTP (custom SMTP en este caso) no responde a tiempo. Sin este
+    // mensaje explicito, el usuario solo ve "Error interno del servidor".
+    if (inviteError.status === 504 || inviteError.message?.toLowerCase().includes("gateway timeout")) {
+      throw new Error(
+        "Supabase no ha podido enviar el email de invitacion (tiempo de espera agotado contactando el servidor SMTP). Revisa la configuracion de SMTP en Authentication > Emails."
+      );
+    }
+    throw inviteError;
+  }
   return invited.user.id;
 }
 

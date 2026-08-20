@@ -7,17 +7,17 @@ import {
   listTeamMembers,
 } from "@/lib/queries/team";
 import {
-  inviteProjectMember,
   updateProjectMemberRole,
   removeProjectMember,
   createTeam,
-  addTeamMember,
   grantProjectTeamAccess,
   revokeProjectTeamAccess,
 } from "@/lib/actions/team";
 import { RoleSelect } from "@/components/ui/role-select";
 import { ROLE_LABEL, ASSIGNABLE_ROLES } from "@/lib/roles";
 import { ConfirmSubmitButton } from "@/components/ui/confirm-submit-button";
+import { InviteMemberForm } from "@/components/team/invite-member-form";
+import { AddTeamMemberForm } from "@/components/team/add-team-member-form";
 
 function initials(name: string) {
   return name
@@ -110,49 +110,7 @@ export default async function EquipoPage({
           ))}
         </ul>
 
-        {isAdmin && (
-          <form
-            action={async (formData: FormData) => {
-              "use server";
-              const email = String(formData.get("email") ?? "");
-              const role = formData.get("role") as (typeof ASSIGNABLE_ROLES)[number];
-              await inviteProjectMember(projectId, email, role);
-            }}
-            className="flex flex-wrap items-end gap-2 border-t px-4 py-3"
-            style={{ borderColor: "var(--border)" }}
-          >
-            <div className="flex-1 min-w-[200px]">
-              <label className="mb-1 block text-[10.5px] tracking-wide uppercase" style={{ color: "var(--ink-faint)" }}>
-                Invitar por email
-              </label>
-              <input
-                name="email"
-                type="email"
-                required
-                placeholder="nombre@proveedor.com"
-                className="w-full rounded-sm border px-2.5 py-1.5 text-sm"
-                style={{ borderColor: "var(--border)", background: "var(--surface)" }}
-              />
-            </div>
-            <select
-              name="role"
-              defaultValue="INSTALLER"
-              className="rounded-sm border px-2.5 py-1.5 text-sm"
-              style={{ borderColor: "var(--border)", background: "var(--surface)" }}
-            >
-              {ASSIGNABLE_ROLES.map((r) => (
-                <option key={r} value={r}>{ROLE_LABEL[r]}</option>
-              ))}
-            </select>
-            <button
-              type="submit"
-              className="rounded-sm px-3 py-1.5 text-sm font-semibold text-white"
-              style={{ background: "var(--brand)" }}
-            >
-              Invitar
-            </button>
-          </form>
-        )}
+        {isAdmin && <InviteMemberForm projectId={projectId} />}
       </section>
 
       {/* Equipos */}
@@ -255,28 +213,7 @@ export default async function EquipoPage({
                 ))}
               </ul>
 
-              {isAdmin && (
-                <form
-                  action={async (formData: FormData) => {
-                    "use server";
-                    const email = String(formData.get("email") ?? "");
-                    await addTeamMember(projectId, team.id, email);
-                  }}
-                  className="mt-2 flex items-center gap-2"
-                >
-                  <input
-                    name="email"
-                    type="email"
-                    required
-                    placeholder="Añadir miembro por email"
-                    className="rounded-sm border px-2 py-1 text-xs"
-                    style={{ borderColor: "var(--border)", background: "var(--surface)" }}
-                  />
-                  <button type="submit" className="text-xs" style={{ color: "var(--accent-ink)" }}>
-                    Añadir
-                  </button>
-                </form>
-              )}
+              {isAdmin && <AddTeamMemberForm projectId={projectId} teamId={team.id} />}
             </div>
           );
         })}
