@@ -17,16 +17,27 @@ async function signInWithEmail(formData: FormData) {
   redirect(`/login?sent=${encodeURIComponent(email)}`);
 }
 
+const AUTH_ERROR_MESSAGES: Record<string, string> = {
+  bad_code_verifier: "El enlace ya se había usado (a veces el propio gestor de correo lo abre por ti para escanearlo). Pide uno nuevo.",
+  otp_expired: "El enlace ha caducado. Pide uno nuevo.",
+};
+
 export default async function LoginPage({
   searchParams,
 }: PageProps<"/login">) {
-  const { sent } = await searchParams;
+  const { sent, auth_error } = await searchParams;
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-paper px-4">
       <div className="w-full max-w-sm rounded-md border border-border bg-surface p-8 shadow-sm">
         <h1 className="mb-1 text-2xl font-semibold">Gestor de Proyectos</h1>
         <p className="mb-6 text-sm text-ink-soft">SERCOM · Vodafone</p>
+
+        {auth_error && (
+          <p className="mb-4 rounded-sm px-3 py-2 text-sm" style={{ background: "var(--red-soft)", color: "var(--red)" }}>
+            {AUTH_ERROR_MESSAGES[String(auth_error)] ?? "No se pudo completar el acceso. Pide un enlace nuevo."}
+          </p>
+        )}
 
         {sent ? (
           <p className="text-sm text-ink-soft">

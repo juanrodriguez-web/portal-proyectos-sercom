@@ -14,6 +14,19 @@ export async function GET(request: NextRequest) {
     if (!error) {
       return NextResponse.redirect(`${origin}${next}`);
     }
+    // Sin log aqui antes fallaba en silencio: no habia forma de saber si
+    // el fallo era "codigo ya usado" (link pre-visitado por el escaner
+    // de un cliente de correo), "codigo caducado" u otra cosa.
+    console.error("[auth/callback] exchangeCodeForSession failed:", error.code, error.message);
+    return NextResponse.redirect(`${origin}/login?auth_error=${encodeURIComponent(error.code ?? error.message)}`);
+  }
+
+  if (searchParams.get("error")) {
+    console.error(
+      "[auth/callback] Supabase redirected with an error:",
+      searchParams.get("error"),
+      searchParams.get("error_description")
+    );
   }
 
   return NextResponse.redirect(`${origin}/login`);
