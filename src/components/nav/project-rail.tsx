@@ -38,10 +38,28 @@ export function ProjectRail({
       href: `${base}/unidades`,
       icon: icon(<><rect x="3" y="4" width="18" height="16" rx="1" /><path d="M3 10h18" /></>),
     },
-    { label: "Gantt", icon: icon(<path d="M4 6h10M4 12h16M4 18h7" />) },
-    { label: "Mapa", icon: icon(<path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2z" />) },
-    { label: "Incidencias", icon: icon(<><path d="M12 9v5M12 17h.01" /><path d="M10.3 3.9 2.6 18a1.6 1.6 0 0 0 1.4 2.4h16a1.6 1.6 0 0 0 1.4-2.4L13.7 3.9a1.6 1.6 0 0 0-2.8 0z" /></>) },
-    { label: "Plantillas", icon: icon(<><rect x="4" y="3" width="16" height="18" rx="1" /><path d="M8 8h8M8 12h8M8 16h5" /></>) },
+    {
+      label: "Importar PDV",
+      href: `${base}/importar`,
+      icon: icon(<><path d="M12 3v12" /><path d="m7 10 5 5 5-5" /><path d="M4 21h16" /></>),
+    },
+    { label: "Gantt", href: `${base}/gantt`, icon: icon(<path d="M4 6h10M4 12h16M4 18h7" />) },
+    { label: "Mapa", href: `${base}/mapa`, icon: icon(<path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2z" />) },
+    {
+      label: "Incidencias",
+      href: `${base}/incidencias`,
+      icon: icon(<><path d="M12 9v5M12 17h.01" /><path d="M10.3 3.9 2.6 18a1.6 1.6 0 0 0 1.4 2.4h16a1.6 1.6 0 0 0 1.4-2.4L13.7 3.9a1.6 1.6 0 0 0-2.8 0z" /></>),
+    },
+    {
+      label: "Plantillas",
+      href: `${base}/plantillas`,
+      icon: icon(<><rect x="4" y="3" width="16" height="18" rx="1" /><path d="M8 8h8M8 12h8M8 16h5" /></>),
+    },
+    {
+      label: "Auditoría",
+      href: `${base}/auditoria`,
+      icon: icon(<><path d="M12 8v4l3 3" /><circle cx="12" cy="12" r="9" /></>),
+    },
     {
       label: "Usuarios y equipos",
       href: `${base}/equipo`,
@@ -50,7 +68,7 @@ export function ProjectRail({
   ];
 
   const personalItems: NavItem[] = [
-    { label: "Mis tareas", icon: icon(<path d="M20 6 9 17l-5-5" />) },
+    { label: "Mis tareas", href: "/mis-tareas", icon: icon(<path d="M20 6 9 17l-5-5" />) },
   ];
 
   const renderItem = (item: NavItem) => {

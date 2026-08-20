@@ -31,7 +31,12 @@ export type WorkUnit = {
   installation_planned_at: string | null;
   operative_at: string | null;
   notes: string | null;
+  lat: number | null;
+  lng: number | null;
 };
+
+const WORK_UNIT_COLUMNS =
+  "id, project_id, code, name, address, postal_code, city, province, contact_name, status, risk_level, risk_score, installation_planned_at, operative_at, notes, lat, lng";
 
 // RLS (has_work_unit_access) hace el filtrado real: un COORDINATOR/ADMIN
 // del proyecto ve todas las unidades, un INSTALLER solo las suyas.
@@ -40,9 +45,7 @@ export async function listWorkUnits(projectId: string): Promise<WorkUnit[]> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("work_units")
-    .select(
-      "id, project_id, code, name, address, postal_code, city, province, contact_name, status, risk_level, risk_score, installation_planned_at, operative_at, notes"
-    )
+    .select(WORK_UNIT_COLUMNS)
     .eq("project_id", projectId)
     .order("installation_planned_at", { ascending: true, nullsFirst: false });
 
@@ -55,9 +58,7 @@ export async function getWorkUnit(workUnitId: string): Promise<WorkUnit | null> 
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("work_units")
-    .select(
-      "id, project_id, code, name, address, postal_code, city, province, contact_name, status, risk_level, risk_score, installation_planned_at, operative_at, notes"
-    )
+    .select(WORK_UNIT_COLUMNS)
     .eq("id", workUnitId)
     .maybeSingle();
 

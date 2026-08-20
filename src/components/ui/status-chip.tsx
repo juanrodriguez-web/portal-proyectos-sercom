@@ -1,4 +1,6 @@
 import type { RiskLevel, WorkUnitStatus } from "@/lib/queries/work-units";
+import type { IncidentStatus } from "@/lib/queries/incidents";
+import { INCIDENT_STATUS_LABEL } from "@/lib/incident-options";
 
 const STATUS_LABEL: Record<WorkUnitStatus, string> = {
   PLANIFICADO: "Planificado",
@@ -54,6 +56,27 @@ const RISK_TOKEN: Record<RiskLevel, string> = {
   HIGH: "high",
   CRITICAL: "crit",
 };
+
+// Reutiliza los tokens de estado de work_unit: OPEN~pending, IN_PROGRESS~install,
+// RESOLVED/CLOSED~operativo, coherente visualmente sin inventar tokens nuevos.
+const INCIDENT_STATUS_TOKEN: Record<IncidentStatus, string> = {
+  OPEN: "pending",
+  IN_PROGRESS: "install",
+  RESOLVED: "op",
+  CLOSED: "planned",
+};
+
+export function IncidentStatusChip({ status }: { status: IncidentStatus }) {
+  const token = INCIDENT_STATUS_TOKEN[status];
+  return (
+    <span
+      className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold whitespace-nowrap before:h-1.5 before:w-1.5 before:rounded-sm before:content-['']"
+      style={{ background: `var(--st-${token}-b)`, color: `var(--st-${token}-i)` }}
+    >
+      {INCIDENT_STATUS_LABEL[status]}
+    </span>
+  );
+}
 
 export function RiskChip({ risk }: { risk: RiskLevel }) {
   const token = RISK_TOKEN[risk];

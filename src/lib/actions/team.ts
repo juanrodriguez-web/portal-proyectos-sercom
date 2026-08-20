@@ -3,21 +3,10 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
-import { getProjectRole } from "@/lib/dal";
+import { requireProjectAdmin } from "@/lib/authz";
 import type { AppRole, TeamKind } from "@/lib/queries/team";
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
-
-// Autorizacion explicita en servidor (spec 4.8): MANAGE_USERS es ADMIN
-// unicamente. No basta con que RLS lo permita en la tabla de destino,
-// porque el paso de invitar (crear el auth.user) usa el service role,
-// que salta el RLS por completo.
-async function requireProjectAdmin(projectId: string) {
-  const role = await getProjectRole(projectId);
-  if (role !== "ADMIN") {
-    throw new Error("Solo un ADMIN puede gestionar usuarios y equipos de este proyecto.");
-  }
-}
 
 // Busca un profile por email; si no existe, crea el auth.user via admin
 // API (dispara el trigger que crea profiles) y le manda invitacion por
