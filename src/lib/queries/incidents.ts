@@ -30,3 +30,16 @@ export async function listIncidents(projectId: string): Promise<Incident[]> {
   if (error) throw error;
   return (data ?? []) as unknown as Incident[];
 }
+
+export async function listIncidentsForWorkUnit(workUnitId: string): Promise<Incident[]> {
+  await getSession();
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("incidents")
+    .select("id, work_unit_id, category, severity, description, status, opened_at, target_at, resolved_at, work_units(name, code)")
+    .eq("work_unit_id", workUnitId)
+    .order("opened_at", { ascending: false });
+
+  if (error) throw error;
+  return (data ?? []) as unknown as Incident[];
+}

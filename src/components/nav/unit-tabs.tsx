@@ -6,11 +6,10 @@ import { usePathname } from "next/navigation";
 const TABS = [
   { label: "Resumen", href: "" },
   { label: "Checklist", href: "/checklist" },
-  { label: "Timeline", href: null },
+  { label: "Timeline", href: "/timeline" },
   { label: "Evidencias", href: null },
-  { label: "Incidencias", href: null },
-  { label: "Comentarios", href: null },
-  { label: "Auditoría", href: null },
+  { label: "Incidencias", href: "/incidencias" },
+  { label: "Comentarios", href: "/comentarios" },
 ] as const;
 
 export function UnitTabs({ projectId, workUnitId }: { projectId: string; workUnitId: string }) {
