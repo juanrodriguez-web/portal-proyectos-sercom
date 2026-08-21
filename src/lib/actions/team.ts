@@ -59,7 +59,14 @@ async function resolveOrInviteProfile(email: string): Promise<{ userId: string }
       redirectTo: `${APP_URL}/auth/callback`,
     });
     if (error) {
-      if (error.status === 504 || error.message?.toLowerCase().includes("gateway timeout")) {
+      // El AbortError puede llegar como excepcion (catch, abajo) o
+      // devuelto aqui dentro de {error} segun como lo envuelva
+      // supabase-js por dentro - hay que detectarlo en los dos sitios.
+      if (
+        error.status === 504 ||
+        error.message?.toLowerCase().includes("gateway timeout") ||
+        isAbortError(error)
+      ) {
         return { error: SMTP_TIMEOUT_MESSAGE };
       }
       return { error: error.message };
