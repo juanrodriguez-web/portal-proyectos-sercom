@@ -59,6 +59,14 @@ async function resolveOrInviteProfile(email: string): Promise<{ userId: string }
       redirectTo: `${APP_URL}/auth/callback`,
     });
     if (error) {
+      // Log completo para depurar: el mensaje "traducido" que ve el
+      // usuario no dice cual de estas condiciones se disparo de verdad.
+      console.error("[resolveOrInviteProfile] inviteUserByEmail devolvio error:", {
+        name: error.name,
+        message: error.message,
+        status: error.status,
+        code: error.code,
+      });
       // El AbortError puede llegar como excepcion (catch, abajo) o
       // devuelto aqui dentro de {error} segun como lo envuelva
       // supabase-js por dentro - hay que detectarlo en los dos sitios.
@@ -73,6 +81,10 @@ async function resolveOrInviteProfile(email: string): Promise<{ userId: string }
     }
     return { userId: data.user.id };
   } catch (e) {
+    console.error(
+      "[resolveOrInviteProfile] inviteUserByEmail lanzo una excepcion:",
+      e instanceof Error ? { name: e.name, message: e.message, stack: e.stack } : e
+    );
     if (isAbortError(e)) return { error: SMTP_TIMEOUT_MESSAGE };
     return { error: e instanceof Error ? e.message : "Error desconocido invitando al usuario." };
   }
