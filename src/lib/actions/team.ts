@@ -8,6 +8,20 @@ import type { AppRole, TeamKind } from "@/lib/queries/team";
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
 
+// GoTrue puede tardar ~35s en devolver el 504 cuando el SMTP configurado
+// no responde. Dejar que eso corra hasta el final arriesga chocar con el
+// limite de duracion de la funcion serverless, que mata el proceso a
+// medio responder y el cliente ve un crash de React en vez de un
+// mensaje de error normal. Cortamos nosotros antes, con margen.
+const INVITE_TIMEOUT_MS = 15000;
+
+function withTimeout<T>(promise: Promise<T>, ms: number, message: string): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<T>((_, reject) => setTimeout(() => reject(new Error(message)), ms)),
+  ]);
+}
+
 // Busca un profile por email; si no existe, crea el auth.user via admin
 // API (dispara el trigger que crea profiles) y le manda invitacion por
 // correo. Usa service role SOLO para esto - el resto de la operacion
@@ -24,20 +38,23 @@ async function resolveOrInviteProfile(email: string): Promise<string> {
   if (lookupError) throw lookupError;
   if (existing) return existing.id;
 
-  const { data: invited, error: inviteError } = await admin.auth.admin.inviteUserByEmail(email, {
-    redirectTo: `${APP_URL}/auth/callback`,
-  });
-  if (inviteError) {
-    // GoTrue devuelve status 504/AuthRetryableFetchError cuando el envio
-    // por SMTP (custom SMTP en este caso) no responde a tiempo. Sin este
-    // mensaje explicito, el usuario solo ve "Error interno del servidor".
-    if (inviteError.status === 504 || inviteError.message?.toLowerCase().includes("gateway timeout")) {
-      throw new Error(
-        "Supabase no ha podido enviar el email de invitacion (tiempo de espera agotado contactando el servidor SMTP). Revisa la configuracion de SMTP en Authentication > Emails."
-      );
+  const SMTP_TIMEOUT_MESSAGE =
+    "El servidor SMTP configurado en Supabase no responde (tiempo de espera agotado). Revisa Authentication > Emails > SMTP Settings, o prueba esas credenciales SMTP desde un cliente de correo para descartar que el problema esté en Microsoft 365.";
+
+  const result = await withTimeout(
+    admin.auth.admin.inviteUserByEmail(email, { redirectTo: `${APP_URL}/auth/callback` }),
+    INVITE_TIMEOUT_MS,
+    SMTP_TIMEOUT_MESSAGE
+  );
+  if (result.error) {
+    // GoTrue tambien puede devolver el 504 directamente si responde
+    // antes de nuestro propio timeout.
+    if (result.error.status === 504 || result.error.message?.toLowerCase().includes("gateway timeout")) {
+      throw new Error(SMTP_TIMEOUT_MESSAGE);
     }
-    throw inviteError;
+    throw result.error;
   }
+  const invited = result.data;
   return invited.user.id;
 }
 
