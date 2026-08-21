@@ -16,7 +16,11 @@ const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
 // aborta la peticion HTTP de verdad (AbortController, no un
 // Promise.race que solo "deja de esperar" pero no cancela nada) a los
 // 15s.
-const INVITE_TIMEOUT_MS = 15000;
+// TEMPORAL para diagnostico: subido de 15000 a 45000 para ver si la
+// llamada termina resolviendose sola (aunque tarde) o si Supabase tiene
+// su propio limite interno alrededor de los ~35s independientemente del
+// SMTP. Volver a bajarlo en cuanto se entienda la causa real.
+const INVITE_TIMEOUT_MS = 45000;
 
 const SMTP_TIMEOUT_MESSAGE =
   "El servidor SMTP configurado en Supabase no responde (tiempo de espera agotado). Revisa Authentication > Emails > SMTP Settings, o prueba esas credenciales SMTP desde un cliente de correo para descartar que el problema esté en Microsoft 365.";
