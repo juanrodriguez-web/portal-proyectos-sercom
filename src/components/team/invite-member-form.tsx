@@ -7,14 +7,10 @@ import { ASSIGNABLE_ROLES, ROLE_LABEL } from "@/lib/roles";
 type State = { error: string | null };
 
 async function run(projectId: string, _prev: State, formData: FormData): Promise<State> {
-  try {
-    const email = String(formData.get("email") ?? "");
-    const role = formData.get("role") as (typeof ASSIGNABLE_ROLES)[number];
-    await inviteProjectMember(projectId, email, role);
-    return { error: null };
-  } catch (e) {
-    return { error: e instanceof Error ? e.message : "Error desconocido" };
-  }
+  const email = String(formData.get("email") ?? "");
+  const role = formData.get("role") as (typeof ASSIGNABLE_ROLES)[number];
+  const result = await inviteProjectMember(projectId, email, role);
+  return result.ok ? { error: null } : { error: result.error };
 }
 
 export function InviteMemberForm({ projectId }: { projectId: string }) {

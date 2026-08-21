@@ -6,13 +6,9 @@ import { addTeamMember } from "@/lib/actions/team";
 type State = { error: string | null };
 
 async function run(projectId: string, teamId: string, _prev: State, formData: FormData): Promise<State> {
-  try {
-    const email = String(formData.get("email") ?? "");
-    await addTeamMember(projectId, teamId, email);
-    return { error: null };
-  } catch (e) {
-    return { error: e instanceof Error ? e.message : "Error desconocido" };
-  }
+  const email = String(formData.get("email") ?? "");
+  const result = await addTeamMember(projectId, teamId, email);
+  return result.ok ? { error: null } : { error: result.error };
 }
 
 export function AddTeamMemberForm({ projectId, teamId }: { projectId: string; teamId: string }) {

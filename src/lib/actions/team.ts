@@ -25,12 +25,23 @@ function isAbortError(e: unknown): boolean {
   return e instanceof Error && (e.name === "AbortError" || e.message.toLowerCase().includes("abort"));
 }
 
+export type ActionResult = { ok: true } | { ok: false; error: string };
+
+// Next.js oculta el mensaje real de cualquier error que se lance
+// (throw) desde una Server Action en produccion, y solo deja pasar un
+// "digest" opaco (spec de Next: evita filtrar detalles internos por
+// error). Como aqui SI queremos que el ADMIN vea el motivo exacto
+// (p.ej. que el SMTP no responde), estas acciones devuelven el error
+// como valor (ActionResult) en vez de lanzarlo - throw se reserva para
+// bugs de verdad inesperados, no para fallos externos previsibles
+// (SMTP caido, RLS, etc).
+
 // Busca un profile por email; si no existe, crea el auth.user via admin
 // API (dispara el trigger que crea profiles) y le manda invitacion por
 // correo. Usa service role SOLO para esto - el resto de la operacion
 // (insertar en project_members/team_members) pasa por el cliente
 // RLS-respetuoso.
-async function resolveOrInviteProfile(email: string): Promise<string> {
+async function resolveOrInviteProfile(email: string): Promise<{ userId: string } | { error: string }> {
   const admin = createServiceRoleClient();
 
   const { data: existing, error: lookupError } = await admin
@@ -38,41 +49,41 @@ async function resolveOrInviteProfile(email: string): Promise<string> {
     .select("id")
     .eq("email", email)
     .maybeSingle();
-  if (lookupError) throw lookupError;
-  if (existing) return existing.id;
+  if (lookupError) return { error: lookupError.message };
+  if (existing) return { userId: existing.id };
 
   const authAdmin = createServiceRoleClient({ fetchTimeoutMs: INVITE_TIMEOUT_MS });
 
-  let invited;
   try {
     const { data, error } = await authAdmin.auth.admin.inviteUserByEmail(email, {
       redirectTo: `${APP_URL}/auth/callback`,
     });
     if (error) {
       if (error.status === 504 || error.message?.toLowerCase().includes("gateway timeout")) {
-        throw new Error(SMTP_TIMEOUT_MESSAGE);
+        return { error: SMTP_TIMEOUT_MESSAGE };
       }
-      throw error;
+      return { error: error.message };
     }
-    invited = data;
+    return { userId: data.user.id };
   } catch (e) {
-    if (isAbortError(e)) throw new Error(SMTP_TIMEOUT_MESSAGE);
-    throw e;
+    if (isAbortError(e)) return { error: SMTP_TIMEOUT_MESSAGE };
+    return { error: e instanceof Error ? e.message : "Error desconocido invitando al usuario." };
   }
-  return invited.user.id;
 }
 
-export async function inviteProjectMember(projectId: string, email: string, role: AppRole) {
+export async function inviteProjectMember(projectId: string, email: string, role: AppRole): Promise<ActionResult> {
   await requireProjectAdmin(projectId);
-  const userId = await resolveOrInviteProfile(email.trim().toLowerCase());
+  const resolved = await resolveOrInviteProfile(email.trim().toLowerCase());
+  if ("error" in resolved) return { ok: false, error: resolved.error };
 
   const supabase = await createClient();
   const { error } = await supabase
     .from("project_members")
-    .upsert({ project_id: projectId, user_id: userId, project_role: role }, { onConflict: "project_id,user_id" });
-  if (error) throw error;
+    .upsert({ project_id: projectId, user_id: resolved.userId, project_role: role }, { onConflict: "project_id,user_id" });
+  if (error) return { ok: false, error: error.message };
 
   revalidatePath(`/proyectos/${projectId}/equipo`);
+  return { ok: true };
 }
 
 export async function updateProjectMemberRole(projectId: string, memberId: string, role: AppRole) {
@@ -107,16 +118,19 @@ export async function createTeam(
   revalidatePath(`/proyectos/${projectId}/equipo`);
 }
 
-export async function addTeamMember(projectId: string, teamId: string, email: string) {
+export async function addTeamMember(projectId: string, teamId: string, email: string): Promise<ActionResult> {
   await requireProjectAdmin(projectId);
-  const userId = await resolveOrInviteProfile(email.trim().toLowerCase());
+  const resolved = await resolveOrInviteProfile(email.trim().toLowerCase());
+  if ("error" in resolved) return { ok: false, error: resolved.error };
 
   const supabase = await createClient();
   const { error } = await supabase
     .from("team_members")
-    .upsert({ team_id: teamId, user_id: userId }, { onConflict: "team_id,user_id" });
-  if (error) throw error;
+    .upsert({ team_id: teamId, user_id: resolved.userId }, { onConflict: "team_id,user_id" });
+  if (error) return { ok: false, error: error.message };
+
   revalidatePath(`/proyectos/${projectId}/equipo`);
+  return { ok: true };
 }
 
 export async function grantProjectTeamAccess(projectId: string, teamId: string, role: AppRole) {
