@@ -8,19 +8,13 @@ import type { AppRole, TeamKind } from "@/lib/queries/team";
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
 
-// GoTrue puede tardar ~35s en devolver el 504 cuando el SMTP configurado
-// no responde. Dejar correr eso arriesga chocar con el limite de
-// duracion de la funcion serverless, que mata el proceso a medio
-// responder y el cliente ve un crash de React en vez de un mensaje de
-// error normal. Por eso el cliente que hace esta llamada concreta
-// aborta la peticion HTTP de verdad (AbortController, no un
-// Promise.race que solo "deja de esperar" pero no cancela nada) a los
-// 15s.
-// TEMPORAL para diagnostico: subido de 15000 a 45000 para ver si la
-// llamada termina resolviendose sola (aunque tarde) o si Supabase tiene
-// su propio limite interno alrededor de los ~35s independientemente del
-// SMTP. Volver a bajarlo en cuanto se entienda la causa real.
-const INVITE_TIMEOUT_MS = 45000;
+// GoTrue a veces tarda mucho (~35s+, con reintentos internos) en
+// confirmar un /invite - se ha visto suceder de verdad (el usuario se
+// crea) incluso cuando nuestra propia llamada corta antes por timeout.
+// Asi que el timeout es solo una red de seguridad para no quedarnos
+// colgados indefinidamente, no la señal de si funciono o no: eso se
+// comprueba aparte (ver el re-chequeo de "existing" mas abajo).
+const INVITE_TIMEOUT_MS = 60000;
 
 const SMTP_TIMEOUT_MESSAGE =
   "El servidor SMTP configurado en Supabase no responde (tiempo de espera agotado). Revisa Authentication > Emails > SMTP Settings, o prueba esas credenciales SMTP desde un cliente de correo para descartar que el problema esté en Microsoft 365.";
@@ -58,6 +52,20 @@ async function resolveOrInviteProfile(email: string): Promise<{ userId: string }
 
   const authAdmin = createServiceRoleClient({ fetchTimeoutMs: INVITE_TIMEOUT_MS });
 
+  // Comprobado en produccion: GoTrue puede tardar mucho (reintentos
+  // internos) y aun asi crear el usuario correctamente aunque nuestra
+  // peticion se corte antes por timeout/abort. Si eso pasa, no lo
+  // tratamos como fallo sin mas: volvemos a mirar si el profile
+  // aparecio de todos modos antes de rendirnos.
+  async function recheckAfterFailure(context: string): Promise<{ userId: string } | { error: string }> {
+    const { data: createdAnyway } = await admin.from("profiles").select("id").eq("email", email).maybeSingle();
+    if (createdAnyway) {
+      console.warn(`[resolveOrInviteProfile] ${context}, pero el usuario SI se creo (comprobado a posteriori).`);
+      return { userId: createdAnyway.id };
+    }
+    return { error: SMTP_TIMEOUT_MESSAGE };
+  }
+
   try {
     const { data, error } = await authAdmin.auth.admin.inviteUserByEmail(email, {
       redirectTo: `${APP_URL}/auth/callback`,
@@ -79,7 +87,7 @@ async function resolveOrInviteProfile(email: string): Promise<{ userId: string }
         error.message?.toLowerCase().includes("gateway timeout") ||
         isAbortError(error)
       ) {
-        return { error: SMTP_TIMEOUT_MESSAGE };
+        return recheckAfterFailure("inviteUserByEmail devolvio timeout/abort");
       }
       return { error: error.message };
     }
@@ -89,7 +97,7 @@ async function resolveOrInviteProfile(email: string): Promise<{ userId: string }
       "[resolveOrInviteProfile] inviteUserByEmail lanzo una excepcion:",
       e instanceof Error ? { name: e.name, message: e.message, stack: e.stack } : e
     );
-    if (isAbortError(e)) return { error: SMTP_TIMEOUT_MESSAGE };
+    if (isAbortError(e)) return recheckAfterFailure("inviteUserByEmail aborto");
     return { error: e instanceof Error ? e.message : "Error desconocido invitando al usuario." };
   }
 }

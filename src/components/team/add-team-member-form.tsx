@@ -29,6 +29,11 @@ export function AddTeamMemberForm({ projectId, teamId }: { projectId: string; te
           {pending ? "Añadiendo…" : "Añadir"}
         </button>
       </form>
+      {pending && (
+        <p className="text-[11px]" style={{ color: "var(--ink-faint)" }}>
+          Puede tardar hasta un minuto…
+        </p>
+      )}
       {state.error && (
         <p className="rounded-sm px-2 py-1 text-[11px]" style={{ background: "var(--rk-crit-b)", color: "var(--rk-crit-i)" }}>
           {state.error}

@@ -51,6 +51,11 @@ export function InviteMemberForm({ projectId }: { projectId: string }) {
           {pending ? "Invitando…" : "Invitar"}
         </button>
       </form>
+      {pending && (
+        <p className="text-xs" style={{ color: "var(--ink-faint)" }}>
+          El envío del email puede tardar hasta un minuto — no cierres esta pestaña.
+        </p>
+      )}
       {state.error && (
         <p className="rounded-sm px-2.5 py-1.5 text-xs" style={{ background: "var(--rk-crit-b)", color: "var(--rk-crit-i)" }}>
           {state.error}
