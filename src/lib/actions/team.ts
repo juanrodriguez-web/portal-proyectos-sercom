@@ -9,17 +9,20 @@ import type { AppRole, TeamKind } from "@/lib/queries/team";
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
 
 // GoTrue puede tardar ~35s en devolver el 504 cuando el SMTP configurado
-// no responde. Dejar que eso corra hasta el final arriesga chocar con el
-// limite de duracion de la funcion serverless, que mata el proceso a
-// medio responder y el cliente ve un crash de React en vez de un
-// mensaje de error normal. Cortamos nosotros antes, con margen.
+// no responde. Dejar correr eso arriesga chocar con el limite de
+// duracion de la funcion serverless, que mata el proceso a medio
+// responder y el cliente ve un crash de React en vez de un mensaje de
+// error normal. Por eso el cliente que hace esta llamada concreta
+// aborta la peticion HTTP de verdad (AbortController, no un
+// Promise.race que solo "deja de esperar" pero no cancela nada) a los
+// 15s.
 const INVITE_TIMEOUT_MS = 15000;
 
-function withTimeout<T>(promise: Promise<T>, ms: number, message: string): Promise<T> {
-  return Promise.race([
-    promise,
-    new Promise<T>((_, reject) => setTimeout(() => reject(new Error(message)), ms)),
-  ]);
+const SMTP_TIMEOUT_MESSAGE =
+  "El servidor SMTP configurado en Supabase no responde (tiempo de espera agotado). Revisa Authentication > Emails > SMTP Settings, o prueba esas credenciales SMTP desde un cliente de correo para descartar que el problema esté en Microsoft 365.";
+
+function isAbortError(e: unknown): boolean {
+  return e instanceof Error && (e.name === "AbortError" || e.message.toLowerCase().includes("abort"));
 }
 
 // Busca un profile por email; si no existe, crea el auth.user via admin
@@ -38,23 +41,24 @@ async function resolveOrInviteProfile(email: string): Promise<string> {
   if (lookupError) throw lookupError;
   if (existing) return existing.id;
 
-  const SMTP_TIMEOUT_MESSAGE =
-    "El servidor SMTP configurado en Supabase no responde (tiempo de espera agotado). Revisa Authentication > Emails > SMTP Settings, o prueba esas credenciales SMTP desde un cliente de correo para descartar que el problema esté en Microsoft 365.";
+  const authAdmin = createServiceRoleClient({ fetchTimeoutMs: INVITE_TIMEOUT_MS });
 
-  const result = await withTimeout(
-    admin.auth.admin.inviteUserByEmail(email, { redirectTo: `${APP_URL}/auth/callback` }),
-    INVITE_TIMEOUT_MS,
-    SMTP_TIMEOUT_MESSAGE
-  );
-  if (result.error) {
-    // GoTrue tambien puede devolver el 504 directamente si responde
-    // antes de nuestro propio timeout.
-    if (result.error.status === 504 || result.error.message?.toLowerCase().includes("gateway timeout")) {
-      throw new Error(SMTP_TIMEOUT_MESSAGE);
+  let invited;
+  try {
+    const { data, error } = await authAdmin.auth.admin.inviteUserByEmail(email, {
+      redirectTo: `${APP_URL}/auth/callback`,
+    });
+    if (error) {
+      if (error.status === 504 || error.message?.toLowerCase().includes("gateway timeout")) {
+        throw new Error(SMTP_TIMEOUT_MESSAGE);
+      }
+      throw error;
     }
-    throw result.error;
+    invited = data;
+  } catch (e) {
+    if (isAbortError(e)) throw new Error(SMTP_TIMEOUT_MESSAGE);
+    throw e;
   }
-  const invited = result.data;
   return invited.user.id;
 }
 
