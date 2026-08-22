@@ -7,7 +7,7 @@ import { createServerClient } from "@supabase/ssr";
 // (redirigir a /login si no hay sesion). La autorizacion real (rol,
 // acceso a proyecto/unidad, RLS) se resuelve siempre en el servidor,
 // nunca aqui: ver src/lib/dal.
-const PUBLIC_PATHS = ["/login", "/auth/callback"];
+const PUBLIC_PATHS = ["/login", "/auth/callback", "/auth/token"];
 
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });

@@ -35,7 +35,7 @@ export default async function LoginPage({
 
         {auth_error && (
           <p className="mb-4 rounded-sm px-3 py-2 text-sm" style={{ background: "var(--red-soft)", color: "var(--red)" }}>
-            {AUTH_ERROR_MESSAGES[String(auth_error)] ?? "No se pudo completar el acceso. Pide un enlace nuevo."}
+            {AUTH_ERROR_MESSAGES[String(auth_error)] ?? String(auth_error)}
           </p>
         )}
 
